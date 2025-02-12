@@ -1,3 +1,4 @@
+import os
 from http.client import responses
 from fastapi import FastAPI, HTTPException
 from supabase import create_client, Client
@@ -5,18 +6,20 @@ from pydantic import BaseModel
 import google.generativeai as genai
 from fastapi.middleware.cors import CORSMiddleware
 from jira import JIRA
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Initialize Supabase client
-url = "https://tkrrefsejlahthlgbqhy.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRrcnJlZnNlamxhaHRobGdicWh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzkzMTc1ODgsImV4cCI6MjA1NDg5MzU4OH0.E8GQgv6kmlEWkJLZIRzEOvKyS5x4jLDVt9r7Lytmcvw"
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
+
 supabase: Client = create_client(url, key)
 
-print ("Hello World")
 # Initialize Jira Client
-
 jira_server = "https://jpveliz11.atlassian.net/"
 email = "jpveliz11@gmail.com"
-api_token = "ATATT3xFfGF0zUm1vntFsDFdJv-JZ-O1b-pEYR6qg5tiNDOu0gPcznYM07kHt0hWQsZtKGiXf34jkjxq8eRL0dUyV7fWT3CC8KYe0qLUkHPKWfDwOKRZeGo745NkbsWnS_CZMrcSRr_6tbSbDWHI_vnAadE3JEg281lwa5AsCHDJBeSTz1aaLaI=4E293D48"
+api_token = os.getenv("JIRA_KEY")
 
 jira = JIRA(server=jira_server, basic_auth=(email, api_token))
 
@@ -53,7 +56,7 @@ def get_issues():
     return response1.data
 
 # Configure the Gemini API key
-genai.configure(api_key="AIzaSyBqRvmzx6ZATJOCY-1mAPVVHKeUXPVEAsA")
+genai.configure(api_key=os.getenv("GEMINI_KEY"))
 
 # Function to generate a recommendation for a specific issue
 @app.get("/recommendation/{issue_id}")
