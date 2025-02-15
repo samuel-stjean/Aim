@@ -7,6 +7,8 @@ import google.generativeai as genai
 from fastapi.middleware.cors import CORSMiddleware
 from jira import JIRA
 from dotenv import load_dotenv
+import json
+import re
 
 load_dotenv()
 
@@ -44,6 +46,14 @@ class Issue(BaseModel):
     urgency_level: int
     status: bool
     issue_name: str
+
+class Ticket(BaseModel):
+    ticket_id: int
+    issue_id: int
+    project: str
+    summary: str
+    description: str
+    issuetype: str
 
 @app.get("/developer")
 def get_users():
@@ -84,7 +94,6 @@ def get_recommendation(issue_id: int):
         # Convert dictionary to a string
         issue_data_str = str(issue_data1)
 
-
         # Prepare the input for the Gemini API
         prompt = (
             "Generate a Jira ticket recommendation. "
@@ -100,7 +109,12 @@ def get_recommendation(issue_id: int):
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
 
-        # Parse and return the AI's response
+        tickets = extract_json_tickets(response.text)
+
+        for i in tickets:
+
+            print(i)
+
         return response.text
 
     except Exception as e:
@@ -117,3 +131,29 @@ def add_issue(issue: Issue):
     response1 = supabase.table("issues").insert(issue.dict()).execute()
     return response1.data
 
+@app.post("/tickets")
+def add_issue(ticket: Ticket):
+    response1 = supabase.table("tickets").insert(ticket.dict()).execute()
+    return response1.data
+
+def extract_json_tickets(text):
+    # Regular expression to match JSON-like structures
+    json_pattern = re.compile(r'```json\s*(\{.*?\})\s*```', re.DOTALL)
+    
+    # Find all JSON snippets in the text
+    json_matches = json_pattern.findall(text)
+    
+    tickets = []
+    
+    for json_text in json_matches:
+
+        try:
+            # Convert single quotes to double quotes to make it valid JSON
+            json_text = json_text.replace("'", '"')
+            ticket = json.loads(json_text)
+            tickets.append(ticket)
+
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+    
+    return tickets
