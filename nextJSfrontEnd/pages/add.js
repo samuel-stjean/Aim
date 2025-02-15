@@ -93,11 +93,11 @@ const styles = {
   title: {
     fontSize: '3rem',
     fontWeight: 'bold',
-    color: '#333',
+    color: '#04e42d',
   },
   subtitle: {
     fontSize: '1.5rem',
-    color: '#666',
+    color: '#04e42d',
   },
   form: {
     display: 'flex',
@@ -110,12 +110,15 @@ const styles = {
   inputGroup: {
     display: 'flex',
     flexDirection: 'column',
+    color: '#fff'
   },
   input: {
     padding: '10px',
     fontSize: '1rem',
     borderRadius: '5px',
-    border: '1px solid #ccc',
+    border: '1px solid #04e42d',
+    backgroundColor: '#000',
+    color: '#04e42d'
   },
   button: {
     padding: '12px 24px',
@@ -123,8 +126,8 @@ const styles = {
     cursor: 'pointer',
     border: 'none',
     borderRadius: '5px',
-    backgroundColor: '#007BFF',
-    color: '#fff',
+    backgroundColor: '#4a4440',
+    color: '#04e42d',
     transition: 'background-color 0.3s',
   },
 }

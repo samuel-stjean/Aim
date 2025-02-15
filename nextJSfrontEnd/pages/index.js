@@ -72,11 +72,11 @@ const styles = {
   title: {
     fontSize: '3rem',
     fontWeight: 'bold',
-    color: '#333',
+    color: '#04e42d',
   },
   subtitle: {
     fontSize: '1.5rem',
-    color: '#666',
+    color: '#04e42d',
   },
   buttonContainer: {
     display: 'flex',
@@ -88,10 +88,10 @@ const styles = {
     padding: '12px 24px',
     fontSize: '1rem',
     cursor: 'pointer',
-    border: 'none',
+    border: '1px solid #04e42d',
     borderRadius: '5px',
-    backgroundColor: '#007BFF',
-    color: '#fff',
+    backgroundColor: '#000ff',
+    color: '#04e42d',
     transition: 'background-color 0.3s',
   },
   buttonHover: {

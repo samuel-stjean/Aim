@@ -1,3 +1,4 @@
+import os
 from http.client import responses
 from fastapi import FastAPI, HTTPException
 from supabase import create_client, Client
@@ -5,17 +6,22 @@ from pydantic import BaseModel
 import google.generativeai as genai
 from fastapi.middleware.cors import CORSMiddleware
 from jira import JIRA
+from dotenv import load_dotenv
+import json
+import re
+
+load_dotenv()
 
 # Initialize Supabase client
-url = "https://nywwjdgkyydxealbuvjz.supabase.co"
-key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55d3dqZGdreXlkeGVhbGJ1dmp6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzc1ODE5OTgsImV4cCI6MjA1MzE1Nzk5OH0.491gmLt4FMVRro2qLuk697NhEHuRyJElf2jSDsx3Eyc"
+url = os.getenv("SUPABASE_URL")
+key = os.getenv("SUPABASE_KEY")
+
 supabase: Client = create_client(url, key)
 
 # Initialize Jira Client
-
 jira_server = "https://jpveliz11.atlassian.net/"
 email = "jpveliz11@gmail.com"
-api_token = "ATATT3xFfGF0zUm1vntFsDFdJv-JZ-O1b-pEYR6qg5tiNDOu0gPcznYM07kHt0hWQsZtKGiXf34jkjxq8eRL0dUyV7fWT3CC8KYe0qLUkHPKWfDwOKRZeGo745NkbsWnS_CZMrcSRr_6tbSbDWHI_vnAadE3JEg281lwa5AsCHDJBeSTz1aaLaI=4E293D48"
+api_token = os.getenv("JIRA_KEY")
 
 jira = JIRA(server=jira_server, basic_auth=(email, api_token))
 
@@ -41,6 +47,14 @@ class Issue(BaseModel):
     status: bool
     issue_name: str
 
+class Ticket(BaseModel):
+    ticket_id: int
+    issue_id: int
+    project: str
+    summary: str
+    description: str
+    issuetype: str
+
 @app.get("/developer")
 def get_users():
     response = supabase.table("developer").select("*").execute()
@@ -52,7 +66,7 @@ def get_issues():
     return response1.data
 
 # Configure the Gemini API key
-genai.configure(api_key="AIzaSyBqRvmzx6ZATJOCY-1mAPVVHKeUXPVEAsA")
+genai.configure(api_key=os.getenv("GEMINI_KEY"))
 
 # Function to generate a recommendation for a specific issue
 @app.get("/recommendation/{issue_id}")
@@ -80,7 +94,6 @@ def get_recommendation(issue_id: int):
         # Convert dictionary to a string
         issue_data_str = str(issue_data1)
 
-
         # Prepare the input for the Gemini API
         prompt = (
             "Generate a Jira ticket recommendation. "
@@ -96,7 +109,12 @@ def get_recommendation(issue_id: int):
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
 
-        # Parse and return the AI's response
+        tickets = extract_json_tickets(response.text)
+
+        for i in tickets:
+
+            print(i)
+
         return response.text
 
     except Exception as e:
@@ -113,3 +131,29 @@ def add_issue(issue: Issue):
     response1 = supabase.table("issues").insert(issue.dict()).execute()
     return response1.data
 
+@app.post("/tickets")
+def add_issue(ticket: Ticket):
+    response1 = supabase.table("tickets").insert(ticket.dict()).execute()
+    return response1.data
+
+def extract_json_tickets(text):
+    # Regular expression to match JSON-like structures
+    json_pattern = re.compile(r'```json\s*(\{.*?\})\s*```', re.DOTALL)
+    
+    # Find all JSON snippets in the text
+    json_matches = json_pattern.findall(text)
+    
+    tickets = []
+    
+    for json_text in json_matches:
+
+        try:
+            # Convert single quotes to double quotes to make it valid JSON
+            json_text = json_text.replace("'", '"')
+            ticket = json.loads(json_text)
+            tickets.append(ticket)
+
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+    
+    return tickets

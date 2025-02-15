@@ -2,34 +2,34 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 
-export default function GetRecommendation() {
+export default function GetTickets() {
   const router = useRouter();
   const { issueId } = router.query;
-  const [recommendation, setRecommendation] = useState(null);
+  const [tickets, setTickets] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!issueId) return;
 
-    const fetchRecommendation = async () => {
+    const fetchTickets = async () => {
       try {
         // Fetch recommendation based on the issue ID
-        const response = await axios.get(`http://127.0.0.1:8000/recommendation/${issueId}`);
-        setRecommendation(response.data); // Update recommendation state
+        const response = await axios.get(`http://127.0.0.1:8000/tickets/${issueId}`);
+        setTickets(response.data); // Update recommendation state
       } catch (err) {
-        console.error('Error fetching recommendation:', err);
-        setError('Failed to fetch recommendation. Please try again later.');
+        console.error('Error fetching tickets:', err);
+        setError('Failed to fetch tickets. Please try again later.');
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRecommendation();
+    fetchTickets();
   }, [issueId]);
 
   if (loading) {
-    return <div style={styles.container}>Loading recommendation...</div>;
+    return <div style={styles.container}>Loading Tickets...</div>;
   }
 
   if (error) {
@@ -38,13 +38,13 @@ export default function GetRecommendation() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Recommendation</h1>
-      {recommendation ? (
+      <h1 style={styles.title}>Tickets</h1>
+      {tickets ? (
         <div style={styles.recommendationBox}>
-          <p>{recommendation}</p> {}
+          <p>{tickets}</p> {/* Display the plain text recommendation */}
         </div>
       ) : (
-        <p>No recommendation available for this issue.</p>
+        <p>No Tickets available for this issue.</p>
       )}
       <button style={styles.button} onClick={() => router.push('/issues')}>
         Back to Issues
@@ -64,14 +64,12 @@ const styles = {
     fontSize: '2rem',
     fontWeight: 'bold',
     marginBottom: '20px',
-    color: '#fff'
   },
   recommendationBox: {
     padding: '20px',
     border: '1px solid #ccc',
     borderRadius: '5px',
-    backgroundColor: '#fff',
-    color: '#000',
+    backgroundColor: '#f9f9f9',
     marginBottom: '20px',
     textAlign: 'center',
   },
@@ -82,7 +80,7 @@ const styles = {
     border: 'none',
     borderRadius: '5px',
     backgroundColor: '#4a4440',
-    color: '#fff',
+    color: '#000',
     transition: 'background-color 0.3s',
   },
 };

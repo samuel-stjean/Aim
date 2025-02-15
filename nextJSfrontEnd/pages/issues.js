@@ -14,10 +14,14 @@ export default function UserIssues() {
         // Fetch issues from the backend where status is false
         const response = await axios.get('http://127.0.0.1:8000/issues?status=false');
         setIssues(response.data);
-      } catch (err) {
+      } 
+      
+      catch (err) {
         console.error('Error fetching issues:', err);
         setError('Failed to fetch issues. Please try again later.');
-      } finally {
+      } 
+      
+      finally {
         setLoading(false);
       }
     };
@@ -40,7 +44,7 @@ export default function UserIssues() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>User Issues</h1>
+      <h1 style={styles.title}>Projects In Progress </h1>
       {issues.length === 0 ? (
         <p style={styles.message}>No unresolved issues found.</p>
       ) : (
@@ -76,28 +80,32 @@ const styles = {
     fontSize: '2rem',
     fontWeight: 'bold',
     marginBottom: '20px',
+    color: '#04e42d', 
   },
   message: {
     fontSize: '1.2rem',
-    color: '#666',
+    color: '#000',
   },
   list: {
     width: '100%',
     maxWidth: '600px',
     listStyleType: 'none',
     padding: 0,
+    color: '#000'
   },
   listItem: {
-    border: '1px solid #ccc',
+    border: '1px solid #04e42d',
     borderRadius: '5px',
     padding: '15px',
     marginBottom: '10px',
-    backgroundColor: '#f9f9f9',
+    backgroundColor: '#000',
+    color: '#fff'
   },
   issueName: {
     fontSize: '1.5rem',
     fontWeight: 'bold',
     marginBottom: '10px',
+    color: '#04e42d'
   },
   button: {
     padding: '10px 20px',
@@ -105,8 +113,8 @@ const styles = {
     cursor: 'pointer',
     border: 'none',
     borderRadius: '5px',
-    backgroundColor: '#007BFF',
-    color: '#fff',
+    backgroundColor: '#4a4440',
+    color: '#04e42d',
     transition: 'background-color 0.3s',
   },
 };
