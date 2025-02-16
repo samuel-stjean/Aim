@@ -5,7 +5,7 @@ import axios from 'axios';
 export default function GetRecommendation() {
   const router = useRouter();
   const { issueId } = router.query;
-  const [recommendation, setRecommendation] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -14,12 +14,11 @@ export default function GetRecommendation() {
 
     const fetchRecommendation = async () => {
       try {
-        // Fetch recommendation based on the issue ID
         const response = await axios.get(`http://127.0.0.1:8000/recommendation/${issueId}`);
-        setRecommendation(response.data); // Update recommendation state
+        setRecommendations(response.data || []);
       } catch (err) {
         console.error('Error fetching recommendation:', err);
-        setError('Failed to fetch recommendation. Please try again later.');
+        setError('Failed to fetch recommendations. Please try again later.');
       } finally {
         setLoading(false);
       }
@@ -29,7 +28,7 @@ export default function GetRecommendation() {
   }, [issueId]);
 
   if (loading) {
-    return <div style={styles.container}>Loading recommendation...</div>;
+    return <div style={styles.container}>Loading recommendations...</div>;
   }
 
   if (error) {
@@ -38,13 +37,20 @@ export default function GetRecommendation() {
 
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Recommendation</h1>
-      {recommendation ? (
-        <div style={styles.recommendationBox}>
-          <p>{recommendation}</p> {}
+      <h1 style={styles.title}>Recommendations</h1>
+      {recommendations.length > 0 ? (
+        <div style={styles.recommendationList}>
+          {recommendations.map((ticket, index) => (
+            <div key={index} style={styles.ticketBox}>
+              <h2>{ticket.summary}</h2>
+              <p><strong>Project:</strong> {ticket.project?.key || 'N/A'}</p>
+              <p><strong>Description:</strong> {ticket.description}</p>
+              <p><strong>Issue Type:</strong> {ticket.issuetype?.name || 'N/A'}</p>
+            </div>
+          ))}
         </div>
       ) : (
-        <p>No recommendation available for this issue.</p>
+        <p>No recommendations available for this issue.</p>
       )}
       <button style={styles.button} onClick={() => router.push('/issues')}>
         Back to Issues
@@ -64,25 +70,35 @@ const styles = {
     fontSize: '2rem',
     fontWeight: 'bold',
     marginBottom: '20px',
-    color: '#fff'
+    color: '#04e42d',
   },
-  recommendationBox: {
+  recommendationList: {
+    display: 'flex',
+    gap: '20px',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    maxWidth: '90vw',
+  },
+  ticketBox: {
     padding: '20px',
-    border: '1px solid #ccc',
-    borderRadius: '5px',
+    border: '1px solid #04e42d',
+    borderRadius: '10px',
     backgroundColor: '#fff',
     color: '#000',
-    marginBottom: '20px',
+    minWidth: '250px',
+    maxWidth: '300px',
     textAlign: 'center',
+    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
   },
   button: {
+    marginTop: '20px',
     padding: '10px 20px',
     fontSize: '1rem',
     cursor: 'pointer',
     border: 'none',
     borderRadius: '5px',
     backgroundColor: '#4a4440',
-    color: '#fff',
+    color: '#04e42d',
     transition: 'background-color 0.3s',
   },
 };

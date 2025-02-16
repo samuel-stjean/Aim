@@ -1,3 +1,4 @@
+import ast
 import os
 from http.client import responses
 from fastapi import FastAPI, HTTPException
@@ -88,7 +89,8 @@ def get_recommendation(issue_id: int):
             'project': {'key': 'SCRUM'},
             'summary': 'Issue Name',
             'description': 'Details of the issue.',
-            'issuetype': {'name': 'Bug'},  # Replace 'Bug' with the desired issue type
+            'issuetype': {'name': 'Bug'},
+            'assignee': {'name': 'john.doe'} # Replace 'Bug' with the desired issue type
         }
 
         # Convert dictionary to a string
@@ -96,12 +98,13 @@ def get_recommendation(issue_id: int):
 
         # Prepare the input for the Gemini API
         prompt = (
-            "Generate a Jira ticket recommendation. "
-            "For the given issue, recommend a developer to assign the ticket to based on their "
-            "available hours and relevant skills. And also recommend a set of Jira tickets that should be made in order "
-            "to complete this issue. Use this template format for the Jira Ticket Recommendations."
+            "For the given project I want you to generate a series of subtasks in the form of jira tickets that are all necessary to complete "
+            "the bigger task (meaning the project). Now for each issue I want you to recommend "
+            "a developer to assign the ticket to based on their "
+            "available hours and relevant skills. For the Jira ticket recommendations please use this template format. "
             f"{issue_data_str}"
             f"Issue: {issue}. Developers: {developers}."
+            "Now for the response itself please only give me the ticket suggestions themselves and the assignee within the format as instructed"
         )
 
 
@@ -109,13 +112,11 @@ def get_recommendation(issue_id: int):
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
 
-        tickets = extract_json_tickets(response.text)
+        tickets = extract_tickets(response.text)
 
-        for i in tickets:
+        print(tickets)
 
-            print(i)
-
-        return response.text
+        return tickets
 
     except Exception as e:
         print(f"Error: {e}")
@@ -136,24 +137,43 @@ def add_issue(ticket: Ticket):
     response1 = supabase.table("tickets").insert(ticket.dict()).execute()
     return response1.data
 
-def extract_json_tickets(text):
-    # Regular expression to match JSON-like structures
-    json_pattern = re.compile(r'```json\s*(\{.*?\})\s*```', re.DOTALL)
+def extract_tickets(text):
+
+    pattern = re.compile(
+        r"\{"
+        r"\s*'project'\s*:\s*\{'key'\s*:\s*'.*?'\},"
+        r"\s*'summary'\s*:\s*'.*?',"
+        r"\s*'description'\s*:\s*'.*?',"
+        r"\s*'issuetype'\s*:\s*\{'name'\s*:\s*'.*?'\},"
+        r"\s*'assignee'\s*:\s*\{'name'\s*:\s*'.*?'\}"
+        r"\s*\}", 
+        re.DOTALL
+    )
     
-    # Find all JSON snippets in the text
-    json_matches = json_pattern.findall(text)
-    
+    matches = pattern.findall(text)
+
     tickets = []
-    
-    for json_text in json_matches:
 
+    for match in matches:
+        # Convert the match string into a dictionary safely using ast.literal_eval
         try:
-            # Convert single quotes to double quotes to make it valid JSON
-            json_text = json_text.replace("'", '"')
-            ticket = json.loads(json_text)
-            tickets.append(ticket)
-
-        except json.JSONDecodeError as e:
-            print(f"Error decoding JSON: {e}")
+            ticket_dict = ast.literal_eval(match)
+            tickets.append(ticket_dict)
+        except Exception as e:
+            print(f"Error parsing ticket: {e}")
     
-    return tickets
+    processed_tickets = [
+
+        {
+            'project': item['project']['key'],  # Extracting 'key' from 'project'
+            'summary': item['summary'],
+            'description': item['description'],
+            'issuetype': item['issuetype']['name'],  # Extracting 'name' from 'issuetype'
+            'assignee': item['assignee']['name']  # Extracting 'name' from 'assignee'
+        }
+
+        for item in tickets
+
+    ]
+    
+    return processed_tickets  # Return list of valid JSON tickets
