@@ -1,21 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
-  --background: hwb(0 0% 96%);
+  --background: #22A4FA;
   --foreground: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0d0f0e;
+    --background: #22A4FA;
     --foreground: #ededed;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+/* Optional: Define heading styles */
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff;  /* Apply the same green color to all headings */
 }
+
+/* Button Styling */
+button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  cursor: pointer;
+  border: 1px solid #ffffff;
+  border-radius: 5px;
+  background-color: 22A4FA; /* Fix the incorrect hex code */
+  color: #ffffff;
+  transition: background-color 0.3s;
+}
+
+/* Button hover effect */
+button:hover {
+  background-color: #22A4FA;
+}
+
+/* Global text styles */
+body {
+  font-family: 'Press Start 2P', cursive;
+  background-color: #22A4FA; /* Blue background */
+  color: white; /* Set text color to white globally */
+  margin: 0; /* Remove default margin */
+  padding: 0;;
+}
+
+/* Bold Title (White) */
+.bold-title {
+  font-size: 4rem;
+  font-weight: bold;
+  color: white; /* White text */
+  text-align: center;
+}
+
+/* Regular Title (Black) */
+.title {
+  font-size: 3rem;
+  font-weight: normal;
+  color: black; /* Black text */
+  text-align: center;
+}
+
+/* Regular Text (White) */
+.regular-white {
+  font-size: 1.2rem;
+  color: white; /* White text */
+  text-align: left;
+}
+
+/* Regular Text (Black) */
+.regular-black {
+  font-size: 1.2rem;
+  color: black; /* Black text */
+  text-align: left;
+}
+
+
