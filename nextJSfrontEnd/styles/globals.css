@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Jaro');
 
 @tailwind base;
 @tailwind components;
@@ -17,22 +17,25 @@
   }
 }
 
-/* Optional: Define heading styles */
 h1, h2, h3, h4, h5, h6 {
   color: #ffffff;  /* Apply the same green color to all headings */
 }
 
-/* Button Styling */
-button {
-  padding: 12px 24px;
-  font-size: 1rem;
-  cursor: pointer;
-  border: 1px solid #ffffff;
-  border-radius: 5px;
-  background-color: 22A4FA; /* Fix the incorrect hex code */
-  color: #ffffff;
-  transition: background-color 0.3s;
+/* Text types */
+body {
+  font-family: 'Jaro', sans-serif;
+  background-color: #22A4FA; /* Blue */
+  color: white;
+  margin: 0;
+  padding: 0; /* Adjust to match header height */
 }
+
+/* Optional: Use a content wrapper for more control */
+.content {
+  padding: 20px; /* Keep existing padding */
+  margin-top: 70px; /* Ensure content starts below the fixed header */
+}
+
 
 /* Button hover effect */
 button:hover {
@@ -41,7 +44,7 @@ button:hover {
 
 /* Global text styles */
 body {
-  font-family: 'Press Start 2P', cursive;
+  font-family: 'Jaro', sans-serif;
   background-color: #22A4FA; /* Blue background */
   color: white; /* Set text color to white globally */
   margin: 0; /* Remove default margin */
@@ -50,17 +53,17 @@ body {
 
 /* Bold Title (White) */
 .bold-title {
-  font-size: 4rem;
+  font-size: 3rem;
   font-weight: bold;
-  color: white; /* White text */
+  color: black; /* White text */
   text-align: center;
 }
 
 /* Regular Title (Black) */
 .title {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: normal;
-  color: black; /* Black text */
+  color: white; /* Black text */
   text-align: center;
 }
 
@@ -79,3 +82,182 @@ body {
 }
 
 
+/* Header  */
+.header {
+  position: fixed; /* Fix header to the top */
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: black; /* Black background */
+  color: white; /* White text */
+  border-bottom: 2px solid #ffffff;
+  z-index: 1000; /* Ensures header stays above other elements */
+}
+
+.header-title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.header-title:hover {
+  color: #CCCCCC; /* Change color to blue */
+  text-shadow: 0px 0px 10px rgba(34, 164, 250, 0.8); /* Adds a soft blue glow */
+}
+
+/* Back Button */
+/* Back Button (Now Icon Only) */
+.back-button {
+  padding: 8px 12px; /* Adjust padding */
+  font-size: 1rem;
+  border: none; /* Remove border */
+  border-radius: 5px;
+  background-color: transparent; /* No background */
+  color: white; /* White icon */
+  cursor: pointer;
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  outline: none; /* Remove focus outline */
+}
+
+/* Remove outline when clicked (focus state) */
+.back-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Optional: Make the button slightly transparent on hover */
+.back-button:hover {
+  opacity: 0.7;
+}
+
+
+/* Navigation Links for header */
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: white; /* White text */
+  font-size: 1.2rem;
+  transition: opacity 0.3s;
+}
+
+.nav-link:hover {
+  opacity: 0.7;
+}
+
+/* Page Container */
+.container {
+  max-width: 600px;
+  margin: 80px auto 20px;
+  padding: 20px;
+  background-color: white; /* White container */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Form Header */
+.form-header {
+  text-align: center;
+  margin-bottom: 20px;
+  color: black; /* Black text */
+}
+
+/* Form Styling */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Input Group */
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 5px;
+}
+
+/* Input Fields */
+.input {
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid #CCCCCC; /* Light Gray Border */
+  border-radius: 5px;
+  background-color: black; /* Black Background */
+  color: white; /* White text */
+}
+
+.input:focus {
+  outline: none;
+  border-color: #88D1FF; /* Highlight input on focus */
+}
+
+/* Button Styling */
+.button {
+  padding: 12px;
+  font-size: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 5px;
+  background-color: #005A9C; /* Dark Blue */
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Button Hover */
+.button:hover {
+  background-color: #003E7E; /* Darker Blue */
+}
+
+/* Sticky Footer */
+.footer {
+  width: 100%;
+  text-align: right;
+  padding: 10px 0;
+  background-color: black; /* Footer background */
+  color: white;
+  font-size: 1rem;
+  padding-right: 1%;
+}
+
+/* Ensure content pushes the footer down */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1; /* Pushes footer to the bottom */
+}
+
+.page-container{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1; /* Pushes footer to the bottom */
+}
