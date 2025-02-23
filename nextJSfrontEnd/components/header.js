@@ -13,14 +13,13 @@ const Header = () => {
       </button>
 
       <Link href = "/" className='header-title'>
-        A.I.M.
+        A.I.M. Bot
       </Link>
 
       {/* Navigation Links */}
       <nav className="nav-links">
-        <Link href="/addIssue" className="nav-link">Add issue</Link>
-        <Link href="/get-recommendation" className="nav-link">Get Recommmendation</Link>
-        <Link href="/issues" className="nav-link">Issues</Link>
+        <Link href="/addIssue" className="nav-link">New Project</Link>
+        <Link href="/issues" className="nav-link">Projects</Link>
         <Link href = "/tickets" className = "nav-link">Tickets</Link>
         <Link href = "/" className = "nav-link"></Link>
       </nav>

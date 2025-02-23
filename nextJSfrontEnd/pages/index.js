@@ -46,18 +46,26 @@ export default function Home() {
         <Header />
     
         {/* Bold Title (White) */}
-        <h1 className="bold-title">A.I.M: A.I. Integrated Project Management</h1>
+        <h1 className="white-bold-title">A.I.M: A.I. Integrated Project Management</h1>
+
+        <h2 className='black-title'>A.I.M Bot leverages cutting-edge AI to simplify and supercharge project management. 
+        From generating Jira tickets to optimizing task allocation and long-term planning, 
+        our tool reduces manual effort and improves team productivity. </h2>
     
         {/* Regular Title (Black) */}
-        <h2 className="title">How can we assist you?</h2>
+        <h2 className="white-title">How can we assist you?</h2>
     
-        <button onClick={handleAdd}>Add New Developer</button>
-        <button onClick={handleAddIssue}>Add New Issue</button>
-        <button onClick={handleGetRecommendation}>Get Recommendations</button>
+
+        <div className='button-container'>
+          <button onClick={handleAdd} className='button'>Add New Developer</button>
+          <button onClick={handleAddIssue} className='button'>Add New Project</button>
+          <button onClick={handleGetRecommendation} className='button'>Get Recommendations</button>
+        </div>
+        
         {/*<button class = ''> onClick = {handle}</button>*/}
 
         <div className="text-content">
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tristique consequat eros, eget tempus augue venenatis ac. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin aliquam, lectus sit amet vestibulum scelerisque, velit odio suscipit nunc, nec interdum odio felis at justo.</p>
+          {/* <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed tristique consequat eros, eget tempus augue venenatis ac. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Proin aliquam, lectus sit amet vestibulum scelerisque, velit odio suscipit nunc, nec interdum odio felis at justo.</p>
 
           <p>Curabitur nec risus turpis. In hac habitasse platea dictumst. Donec aliquet, est id tristique sagittis, nunc nisi consectetur turpis, non suscipit libero quam et nisi. Sed at luctus mauris, sit amet pharetra ipsum. Maecenas sodales turpis eu odio facilisis, nec pharetra augue pellentesque.</p>
 
@@ -129,7 +137,7 @@ export default function Home() {
 
           <p>Etiam egestas urna eget malesuada vehicula. Phasellus condimentum tortor in augue gravida, at accumsan mauris laoreet. Vivamus at vestibulum quam. Donec fermentum felis in arcu scelerisque, ac dictum nulla elementum.</p>
 
-          <p>Curabitur posuere ligula eget magna auctor, eu tristique ex bibendum. Vestibulum non felis ut orci tincidunt tincidunt. Nulla facilisi. Donec sit amet ligula elit.</p>
+          <p>Curabitur posuere ligula eget magna auctor, eu tristique ex bibendum. Vestibulum non felis ut orci tincidunt tincidunt. Nulla facilisi. Donec sit amet ligula elit.</p> */}
 
         </div>
       </div>

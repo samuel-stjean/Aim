@@ -38,8 +38,8 @@ export default function AddNewIssue() {
       <Header /> {/* Add Header for navigation */}
       <div className="container">
         <div className="form-header">
-          <h1 className="bold-title">Add New Issue</h1>
-          <h2 className="title">Please fill in your issue details below</h2>
+          <h1 className="black-title-form">Add New Project</h1>
+          <h2 className="regular-black">Please fill in your project details below</h2>
         </div>
 
         <form onSubmit={handleSubmit} className="form">
@@ -79,7 +79,7 @@ export default function AddNewIssue() {
             />
           </div>
 
-          <button type="submit" className="button">Add Issue</button>
+          <button type="submit" className="button-form">Add Issue</button>
         </form>
       </div>
     </>
