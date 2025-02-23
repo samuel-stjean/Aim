@@ -19,7 +19,7 @@ key = os.getenv("SUPABASE_KEY")
 
 supabase: Client = create_client(url, key)
 
-# Initialize Jira Client
+# Initialize Jira Client Into Correct Project
 jira_server = "https://jpveliz11.atlassian.net/"
 email = "jpveliz11@gmail.com"
 api_token = os.getenv("JIRA_KEY")
