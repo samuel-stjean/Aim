@@ -1,5 +1,8 @@
 # Aim
-Repo for senior design project 
+
+Repo for senior design project
+
+# How To Run Web App:
 
 Step 1) CD into supaBaseBackEnd
 
