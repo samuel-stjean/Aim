@@ -38,6 +38,15 @@ export default function Home() {
     router.push('/issues')  // Redirect to the addNewDeveloper page
   }
 
+  const handleAddProject = () => {
+    router.push('/addProject');
+  }
+
+  const handleViewProjects = () => {
+    router.push('/projects');
+  }
+  
+
 
   return (
     <div style={styles.container}>
@@ -52,6 +61,8 @@ export default function Home() {
         <button onClick={handleAdd} style={styles.button}>Add New Developer</button>
         <button onClick={handleAddIssue} style={styles.button}>Add New Issue</button>
         <button onClick={handleGetRecommendation} style={styles.button}>Get Recommendations</button>
+        <button onClick={handleAddProject} style={styles.button}>Add New Project</button>
+        <button onClick={handleViewProjects} style={styles.button}>View Projects</button>
       </div>
 
     </div>
