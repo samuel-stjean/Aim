@@ -56,6 +56,11 @@ class Ticket(BaseModel):
     description: str
     issuetype: str
 
+class Project(BaseModel):
+    id: int
+    project_description: str
+    project_name: str
+
 @app.get("/developer")
 def get_users():
     response = supabase.table("developer").select("*").execute()
@@ -65,6 +70,11 @@ def get_users():
 def get_issues():
     response1 = supabase.table("issues").select("*").execute()
     return response1.data
+
+@app.get("/projects")
+def get_projects():
+    response = supabase.table("projects").select("*").execute()
+    return response.data
 
 # Configure the Gemini API key
 genai.configure(api_key=os.getenv("GEMINI_KEY"))
@@ -136,6 +146,11 @@ def add_issue(issue: Issue):
 def add_issue(ticket: Ticket):
     response1 = supabase.table("tickets").insert(ticket.dict()).execute()
     return response1.data
+
+@app.post("/projects")
+def add_project(project: Project):
+    response = supabase.table("projects").insert(project.dict()).execute()
+    return response.data
 
 def extract_tickets(text):
 
