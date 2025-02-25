@@ -132,6 +132,33 @@ def get_recommendation(issue_id: int):
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate a recommendation.")
 
+# Function to generate a broad project outline
+@app.get("/project_outline")
+def generate_project_outline(project_goal: str, project_scope: str, project_timeline: str):
+    try:
+        # Construct the prompt for Gemini
+        prompt = (
+            "You are an expert Agile project manager. Based on the provided project details, generate a high-level project outline "
+            "including an overview of necessary sprints. Each sprint should have a general description of its purpose and expected outcomes, "
+            "but avoid breaking it down into detailed tasks. The project manager will prompt separately for sprint breakdowns. "
+            "\n\n"
+            f"Project Goal: {project_goal}\n"
+            f"Project Scope: {project_scope}\n"
+            f"Project Timeline: {project_timeline}\n"
+            "\n"
+            "Now, generate a high-level outline of the project’s sprints, keeping it broad and without individual task details."
+        )
+
+        # Use the generative AI model to generate content
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+
+        return {"project_outline": response.text}
+
+    except Exception as e:
+        print(f"Error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to generate project outline.")
+
 @app.post("/developer")
 def add_user(developer: Developer):
     response = supabase.table("developer").insert(developer.dict()).execute()
