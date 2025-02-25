@@ -46,6 +46,7 @@ export default function Home() {
     router.push('/projects');
   }
   
+  const handlePromptNewProject = () => router.push('/submit-project');
 
 
   return (
@@ -63,6 +64,7 @@ export default function Home() {
         <button onClick={handleGetRecommendation} style={styles.button}>Get Recommendations</button>
         <button onClick={handleAddProject} style={styles.button}>Add New Project</button>
         <button onClick={handleViewProjects} style={styles.button}>View Projects</button>
+        <button onClick={handlePromptNewProject} style={styles.button}>Prompt New Project</button> 
       </div>
 
     </div>
