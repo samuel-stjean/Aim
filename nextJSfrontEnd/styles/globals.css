@@ -1,21 +1,347 @@
+@import url('https://fonts.googleapis.com/css2?family=Jaro');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+
 :root {
-  --background: hwb(0 0% 96%);
+  --background: #4079e1;
   --foreground: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0d0f0e;
+    --background: #4079e1;
     --foreground: #ededed;
   }
 }
 
+h1, h2, h3, h4, h5, h6 {
+  color: #ffffff;  /* Apply the same green color to all headings */
+}
+
+/* Text types */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Jaro', sans-serif;
+  background-color: #4079e1; /* Blue */
+  color: white;
+  margin: 0;
+  padding: 0; /* Adjust to match header height */
+}
+
+/* Optional: Use a content wrapper for more control */
+.content {
+  padding: 20px; /* Keep existing padding */
+  margin-top: 70px; /* Ensure content starts below the fixed header */
+}
+
+
+/* Button hover effect */
+button:hover {
+  background-color: #4079e1;
+}
+
+/* Global text styles */
+body {
+  font-family: 'Jaro', sans-serif;
+  background-color: #4079e1; /* Blue background */
+  color: white; /* Set text color to white globally */
+  margin: 0; /* Remove default margin */
+  padding: 0;;
+}
+
+/* Bold Title (White) */
+.black-bold-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: black; /* White text */
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.white-bold-title {
+  font-size: 3rem;
+  font-weight: bold;
+  color: white; /* White text */
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+/* Regular Title (Black) */
+.white-title {
+  font-size: 2rem;
+  font-weight: normal;
+  color: white; /* Black text */
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.black-title {
+  font-size: 2rem;
+  font-weight: normal;
+  color: black; /* Black text */
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.white-title {
+  font-size: 2rem;
+  font-weight: normal;
+  color: white; /* Black text */
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.black-title-form {
+  font-size: 2rem;
+  font-weight: normal;
+  color: black; /* Black text */
+  text-align: center;
+}
+
+/* Regular Text (White) */
+.regular-white-form {
+  font-size: 1.2rem;
+  color: white; /* White text */
+  text-align: center;
+}
+
+/* Regular Text (Black) */
+.regular-black {
+  font-size: 1.2rem;
+  color: black; /* Black text */
+  text-align: center;
+}
+
+
+/* Header  */
+.header {
+  position: fixed; /* Fix header to the top */
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background-color: black; /* Black background */
+  color: white; /* White text */
+  border-bottom: 2px solid #ffffff;
+  z-index: 1000; /* Ensures header stays above other elements */
+}
+
+.header-title {
+  font-size: 2rem;
+  font-weight: bold;
+  text-decoration: none;
+  color: white;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.header-title:hover {
+  color: #CCCCCC; /* Change color to blue */
+  text-shadow: 0px 0px 10px rgba(34, 164, 250, 0.8); /* Adds a soft blue glow */
+}
+
+/* Back Button */
+/* Back Button (Now Icon Only) */
+.back-button {
+  padding: 8px 12px; /* Adjust padding */
+  font-size: 1rem;
+  border: none; /* Remove border */
+  border-radius: 5px;
+  background-color: transparent; /* No background */
+  color: white; /* White icon */
+  cursor: pointer;
+  transition: opacity 0.3s;
+  display: flex;
+  align-items: center;
+  outline: none; /* Remove focus outline */
+}
+
+/* Remove outline when clicked (focus state) */
+.back-button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Optional: Make the button slightly transparent on hover */
+.back-button:hover {
+  opacity: 0.7;
+}
+
+
+/* Navigation Links for header */
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: white; /* White text */
+  font-size: 1.2rem;
+  transition: opacity 0.3s;
+}
+
+.nav-link:hover {
+  opacity: 0.7;
+}
+
+/* Page Container */
+.container {
+  max-width: 600px;
+  margin: 80px auto 20px;
+  padding: 20px;
+  background-color: white; /* White container */
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Form Header */
+.form-header {
+  text-align: center;
+  margin-bottom: 20px;
+  color: black; /* Black text */
+}
+
+/* Form Styling */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Input Group */
+.input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-group label {
+  font-size: 1rem;
+  font-weight: bold;
+  color: black;
+  margin-bottom: 5px;
+}
+
+/* Input Fields */
+.input {
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid #CCCCCC; /* Light Gray Border */
+  border-radius: 5px;
+  background-color: black; /* Black Background */
+  color: white; /* White text */
+}
+
+.input:focus {
+  outline: none;
+  border-color: #88D1FF; /* Highlight input on focus */
+}
+
+/* Button Styling */
+.button {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: 2px solid white;
+  border-radius: 8px;
+  background: transparent; /* Transparent for sleek look */
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  display: inline-block;
+  margin: 10px; /* Adds spacing between buttons */
+}
+
+/* Hover Effect */
+.button:hover {
+  background: white; /* Turns white */
+  color: #4079e1; /* Text changes to theme blue */
+  transform: scale(1.1); /* Slight scaling effect */
+  box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.8); /* Glow effect */
+}
+
+/* Active Effect (When Clicked) */
+.button:active {
+  transform: scale(1.05); /* Slight press effect */
+}
+
+.button-form {
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  border: 2px solid black;
+  border-radius: 8px;
+  background: transparent; /* Transparent for sleek look */
+  color: black;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  display: inline-block;
+  margin: 10px; /* Adds spacing between buttons */
+}
+
+/* Hover Effect */
+.button-form:hover {
+  background: #4079e1; /* Turns white */
+  color: white; /* Text changes to theme blue */
+  transform: scale(1.05); /* Slight scaling effect */
+  box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.8); /* Glow effect */
+  border: #4079e1;
+}
+
+/* Active Effect (When Clicked) */
+.button-form:active {
+  transform: scale(1.05); /* Slight press effect */
+}
+
+/* Button Container (Centers the Buttons) */
+.button-container {
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Aligns vertically (if needed) */
+  gap: 20px; /* Adds spacing between buttons */
+  flex-wrap: wrap; /* Allows wrapping on smaller screens */
+  margin-top: 20px;
+  text-align: center; /* Ensures proper alignment */
+}
+
+/* Sticky Footer */
+.footer {
+  width: 100%;
+  text-align: right;
+  padding: 10px 0;
+  background-color: black; /* Footer background */
+  color: white;
+  font-size: 1rem;
+  padding-right: 1%;
+}
+
+/* Ensure content pushes the footer down */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.container {
+  flex: 1; /* Pushes footer to the bottom */
+}
+
+.page-container{
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1; /* Pushes footer to the bottom */
 }
