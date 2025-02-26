@@ -58,17 +58,6 @@ export default function Home() {
         {/* Bold Title (White) */}
         <h1 className="white-bold-title">A.I.M: A.I. Integrated Project Management</h1>
 
-<<<<<<< HEAD
-      {/* Button Section */}
-      <div style={styles.buttonContainer}>
-        <button onClick={handleAdd} style={styles.button}>Add New Developer</button>
-        <button onClick={handleAddIssue} style={styles.button}>Add New Issue</button>
-        <button onClick={handleGetRecommendation} style={styles.button}>Get Recommendations</button>
-        <button onClick={handleAddProject} style={styles.button}>Add New Project</button>
-        <button onClick={handleViewProjects} style={styles.button}>View Projects</button>
-        <button onClick={handlePromptNewProject} style={styles.button}>Prompt New Project</button> 
-      </div>
-=======
         <h2 className='black-title'>A.I.M Bot leverages cutting-edge AI to simplify and supercharge project management. 
         From generating Jira tickets to optimizing task allocation and long-term planning, 
         our tool reduces manual effort and improves team productivity. </h2>
@@ -76,7 +65,6 @@ export default function Home() {
         {/* Regular Title (Black) */}
         <h2 className="white-title">How can we assist you?</h2>
     
->>>>>>> main
 
         <div className='button-container'>
           <button onClick={handleAdd} className='button'>Add New Developer</button>
