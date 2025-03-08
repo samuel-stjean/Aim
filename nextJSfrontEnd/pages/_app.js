@@ -1,10 +1,10 @@
 import "@/styles/globals.css";
-import Header from '../components/header';
 import Footer from '../components/footer';
+import BlankHeader from "@/components/blankheader";
 
 export default function App({ Component, pageProps }) {
   return(<div className="page-container">
-    <Header />
+    <BlankHeader />
     <main className="content">
       <Component {...pageProps} />
     </main>
