@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import BlankHeader from '../components/blankheader';
 import { Eye, EyeOff } from 'lucide-react';
+import axios from 'axios';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -23,12 +24,32 @@ const Register = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const user = {
+      id: Math.floor(Math.random() * 1000),  // Generate a random ID or let the DB handle it
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      username: formData.username,
+      email: formData.email,
+      password: formData.password,
+      confirmPassword: formData.confirmPassword,
+    };
     
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
+    }
+
+    try {
+      // Post to the backend to add the developer to Supabase
+      await axios.post('http://127.0.0.1:8000/createUser', user);
+      // Redirect to homepage after successful submission
+    } 
+    
+    catch (error) {
+      console.error('Error adding developer:', error);
     }
 
     console.log('Registering:', formData);
