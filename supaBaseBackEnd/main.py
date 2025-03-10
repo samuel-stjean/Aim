@@ -77,6 +77,7 @@ class Project(BaseModel):
     id: int
     project_description: str
     project_name: str
+    project_manager_email: str
 
 @app.get("/developer")
 def get_users():
