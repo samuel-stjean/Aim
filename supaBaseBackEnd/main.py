@@ -15,9 +15,16 @@ load_dotenv()
 
 # Initialize Supabase client
 url = os.getenv("SUPABASE_URL")
+
+print(url)
+
 key = os.getenv("SUPABASE_KEY")
 
+print(key)
+
 supabase: Client = create_client(url, key)
+
+
 
 # Initialize Jira Client Into Correct Project
 jira_server = "https://jpveliz11.atlassian.net/"
@@ -35,6 +42,16 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
 )
+
+
+class User(BaseModel):
+    id: int
+    firstName: str
+    lastName: str
+    username: str
+    email: str
+    password: str
+    confirmPassword: str
 
 class Developer(BaseModel):
     id: int
@@ -60,6 +77,7 @@ class Project(BaseModel):
     id: int
     project_description: str
     project_name: str
+    project_manager_email: str
 
 @app.get("/developer")
 def get_users():
@@ -81,6 +99,7 @@ genai.configure(api_key=os.getenv("GEMINI_KEY"))
 
 # Function to generate a recommendation for a specific issue
 @app.get("/recommendation/{issue_id}")
+
 def get_recommendation(issue_id: int):
     try:
         # Fetch the specific issue and all developers from Supabase
@@ -159,6 +178,13 @@ def generate_project_outline(project_goal: str, project_scope: str, project_time
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate project outline.")
 
+
+@app.post("/createUser")
+def add_user(user: User):
+    response = supabase.table("user").insert(user.dict()).execute()
+    print(response)
+    return response.data
+
 @app.post("/developer")
 def add_user(developer: Developer):
     response = supabase.table("developer").insert(developer.dict()).execute()
@@ -178,6 +204,18 @@ def add_issue(ticket: Ticket):
 def add_project(project: Project):
     response = supabase.table("projects").insert(project.dict()).execute()
     return response.data
+
+@app.get("/login")
+def login_user(email: str, password: str):
+
+    response = supabase.table("user").select("*").eq("email", email).eq("password", password).execute()
+        
+    if not response.data:
+
+        return 
+    
+    else:  
+        return response.data
 
 def extract_tickets(text):
 
@@ -219,3 +257,4 @@ def extract_tickets(text):
     ]
     
     return processed_tickets  # Return list of valid JSON tickets
+

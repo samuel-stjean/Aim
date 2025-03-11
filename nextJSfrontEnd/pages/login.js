@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import BlankHeader from '../components/blankheader';
 import { Eye, EyeOff } from 'lucide-react'; // Icons for visibility toggle
+import axios from 'axios';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -10,10 +11,27 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Logging in with:', { email, password });
-    router.push('/dashboard'); // Redirect after login
+
+    const formData = { email, password };
+
+    try {
+      
+      const response = await axios.get('http://127.0.0.1:8000/login', { params: formData });
+
+      if (!response.data) {
+        console.error('Invalid login credentials');
+        router.push('/login'); // Redirect to login page if credentials are invalid
+        return;
+      }
+
+      console.log('Logging in with:', { email, password });
+      router.push('/projectDashboard'); // Redirect after login
+    } catch (error) {
+      console.error('Error during login:', error);
+      router.push('/login'); // Redirect to login page on error
+    }
   };
 
   return (
@@ -62,4 +80,3 @@ const Login = () => {
 };
 
 export default Login;
-
