@@ -57,6 +57,7 @@ class Developer(BaseModel):
     id: int
     name: str
     hours_of_work_assigned_this_week: int
+    user_id: int
 
 class Issue(BaseModel):
     id: int

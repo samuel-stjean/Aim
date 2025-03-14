@@ -45,6 +45,8 @@ const Register = () => {
     try {
       // Post to the backend to add the developer to Supabase
       await axios.post('http://127.0.0.1:8000/createUser', user);
+      // Store user ID in session storage
+      sessionStorage.setItem('userId', user.id);
       // Redirect to homepage after successful submission
     } 
     
@@ -53,8 +55,8 @@ const Register = () => {
     }
 
     console.log('Registering:', formData);
-    alert('Registration successful (mocked)!'); // Mock alert, replace with API call later
-    router.push('/login'); // Redirect to login page after registration
+    //alert('Registration successful (mocked)!'); // Mock alert, replace with API call later
+    router.push('/setUpTeam'); // Redirect to login page after registration
   };
 
   return (
