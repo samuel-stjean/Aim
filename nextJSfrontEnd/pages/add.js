@@ -52,6 +52,7 @@ export default function AddNewDeveloper() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input"
+              style={{ color: 'white' }} // Set text color to white
               required
             />
           </div>
@@ -64,6 +65,7 @@ export default function AddNewDeveloper() {
               value={hours}
               onChange={(e) => setHours(Number(e.target.value))}
               className="input"
+              style={{ color: 'white' }}
               required
             />
           </div>
@@ -76,6 +78,7 @@ export default function AddNewDeveloper() {
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
               className="input"
+              style={{ color: 'white' }}
               required
             />
           </div>

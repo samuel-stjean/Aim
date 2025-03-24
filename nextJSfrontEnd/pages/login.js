@@ -17,8 +17,12 @@ const Login = () => {
     const formData = { email, password };
 
     try {
-      
+
       const response = await axios.get('http://127.0.0.1:8000/login', { params: formData });
+
+      sessionStorage.clear();
+      
+      alert(`Setting Up User ID ${sessionStorage.getItem('user_id')}`)
 
       if (!response.data) {
         console.error('Invalid login credentials');
@@ -26,6 +30,12 @@ const Login = () => {
         return;
       }
 
+      else {
+        alert(`Setting Up User ID Before ${response.data[0].id}`);
+        sessionStorage.setItem('userId', JSON.stringify(response.data[0].id));
+        alert(`Setting Up User ID After ${sessionStorage.getItem('userId')}`)
+      }
+    
       console.log('Logging in with:', { email, password });
       router.push('/projectDashboard'); // Redirect after login
     } catch (error) {
@@ -80,3 +90,4 @@ const Login = () => {
 };
 
 export default Login;
+

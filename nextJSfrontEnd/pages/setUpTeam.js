@@ -1,17 +1,45 @@
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
 
 export default function SetUpTeam() {
     const router = useRouter();
-    const [teamMembers, setTeamMembers] = useState([
-        
-        { id: 1, name: 'John Doe', role: 'Developer' },
-        { id: 2, name: 'Jane Smith', role: 'Designer' },
-    ]);
+    const [teamMembers, setTeamMembers] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     const handleAddTeamMember = () => {
         router.push('/add');
     };
+
+    useEffect(() => {
+        const fetchTeamMembers = async () => {
+            try {
+                // Fetch team members from the backend
+                const response = await axios.get('http://127.0.0.1:8000/team', {
+                    params: { user_id: sessionStorage.getItem('userId') }
+                });
+                                
+                setTeamMembers(response.data);
+                
+            } catch (err) {
+                console.error('Error fetching Members:', err);
+                setError('Failed to fetch members. Please try again later.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchTeamMembers();
+    }, []);
+
+    if (loading) {
+        return <div style={styles.container}>Loading team members...</div>;
+    }
+
+    if (error) {
+        return <div style={styles.container}>{error}</div>;
+    }
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen blue-100 p-6">
@@ -45,10 +73,22 @@ export default function SetUpTeam() {
                             ))}
                         </ul>
                     ) : (
-                        <p className="text-gray-500">No team members added yet.</p>
+                        <p className="text-gray-500">No current team members.</p>
                     )}
                 </div>
             </div>
         </div>
     );
 }
+
+const styles = {
+    container: {
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        backgroundColor: '#f0f4f8',
+        fontSize: '18px',
+        color: '#333',
+    },
+};

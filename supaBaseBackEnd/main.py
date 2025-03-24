@@ -85,6 +85,11 @@ def get_users():
     response = supabase.table("developer").select("*").execute()
     return response.data
 
+@app.get("/team")
+def get_team(user_id: int):
+    response = supabase.table("developer").select("*").eq("user_id", user_id).execute()
+    return response.data
+
 @app.get("/issues")
 def get_issues():
     response1 = supabase.table("issues").select("*").execute()
@@ -209,7 +214,7 @@ def add_project(project: Project):
 @app.get("/login")
 def login_user(email: str, password: str):
 
-    response = supabase.table("user").select("*").eq("email", email).eq("password", password).execute()
+    response = supabase.table("user").select("id").eq("email", email).eq("password", password).execute()
         
     if not response.data:
 
@@ -258,4 +263,6 @@ def extract_tickets(text):
     ]
     
     return processed_tickets  # Return list of valid JSON tickets
+
+
 
