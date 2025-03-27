@@ -27,8 +27,13 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if(formData.password != formData.confirmPassword){
+      setError('Passwords do not match');
+      return;
+    }
+
     const user = {
-      id: Math.floor(Math.random() * 1000),  // Generate a random ID or let the DB handle it
+      //id: Math.floor(Math.random() * 1000),  // Generate a random ID or let the DB handle it
       firstName: formData.firstName,
       lastName: formData.lastName,
       username: formData.username,
@@ -36,27 +41,27 @@ const Register = () => {
       password: formData.password,
       confirmPassword: formData.confirmPassword,
     };
-    
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
+
 
     try {
-      // Post to the backend to add the developer to Supabase
-      await axios.post('http://127.0.0.1:8000/createUser', user);
-      // Store user ID in session storage
-      sessionStorage.setItem('userId', user.id);
-      // Redirect to homepage after successful submission
-    } 
-    
-    catch (error) {
+      // Send user to backend
+      const response = await axios.post('http://127.0.0.1:8000/createUser', {
+        ...user,
+        id: Math.floor(Math.random() * 10000), // still needed unless backend is auto-incrementing
+      });
+  
+      if (response.data && response.data.length > 0) {
+        const savedUser = response.data[0];
+        sessionStorage.setItem('user', JSON.stringify(savedUser)); // Save entire user object
+        router.push('/dashboard');
+      } else {
+        setError('Something went wrong. Please try again.');
+      }
+  
+    } catch (error) {
       console.error('Error adding developer:', error);
+      setError('Error during registration. Try again.');
     }
-
-    console.log('Registering:', formData);
-    //alert('Registration successful (mocked)!'); // Mock alert, replace with API call later
-    router.push('/setUpTeam'); // Redirect to login page after registration
   };
 
   return (
