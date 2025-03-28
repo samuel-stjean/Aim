@@ -1,7 +1,8 @@
 import ast
 import os
 from http.client import responses
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request  # ← Add Request here
+
 from supabase import create_client, Client
 from pydantic import BaseModel
 import google.generativeai as genai
@@ -57,6 +58,9 @@ class Developer(BaseModel):
     id: int
     name: str
     hours_of_work_assigned_this_week: int
+    skills: str
+    user_id: int
+    team_id: int  
 
 class Issue(BaseModel):
     id: int
@@ -64,6 +68,8 @@ class Issue(BaseModel):
     urgency_level: int
     status: bool
     issue_name: str
+    project_id: int
+    sprint_id: int
 
 class Ticket(BaseModel):
     ticket_id: int
@@ -72,12 +78,40 @@ class Ticket(BaseModel):
     summary: str
     description: str
     issuetype: str
+    sprint_id: int
 
 class Project(BaseModel):
-    id: int
-    project_description: str
+    id: int | None = None
     project_name: str
-    project_manager_email: str
+    project_description: str | None = None
+    project_manager_email: str | None = None  # Add this
+    sprint_duration_weeks: int | None = None  # Rename field
+    start_date: str | None = None
+    end_date: str | None = None
+
+
+class Sprint(BaseModel):
+    id: int
+    name: str
+    start_date: str
+    end_date: str
+    status: str
+    project_id: int
+
+class Recommendation(BaseModel):
+    id: int
+    issue_id: int
+    developer_id: int
+    sprint_id: int | None = None  # Nullable
+    project_id: int | None = None  # Nullable
+    recommendation_type: str  # 'sprint' or 'project'
+    description: str
+
+class Team(BaseModel):
+    id: int
+    team_name: str
+    project_id: int
+
 
 @app.get("/developer")
 def get_users():
@@ -89,9 +123,40 @@ def get_issues():
     response1 = supabase.table("issues").select("*").execute()
     return response1.data
 
+# @app.get("/projects")
+# def get_projects():
+#     response = supabase.table("projects").select("*").execute()
+#     return response.data
+
 @app.get("/projects")
-def get_projects():
-    response = supabase.table("projects").select("*").execute()
+def get_projects(request: Request):
+    id_query = request.query_params.get("id")
+
+    query = supabase.table("projects").select("*")
+
+    if id_query:
+        # Expecting query like "eq.7"
+        match = re.match(r"eq\.(\d+)", id_query)
+        if match:
+            project_id = int(match.group(1))
+            query = query.eq("id", project_id)
+
+    response = query.execute()
+    return response.data
+
+@app.post("/projects")
+def add_project(project: Project):
+    try:
+        project_data = project.dict(exclude_none=True)  # Remove null values
+        response = supabase.table("projects").insert(project_data).execute()
+        return {"message": "Project added successfully", "data": response.data}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/sprints")
+def get_sprints():
+    response = supabase.table("sprints").select("*").execute()
     return response.data
 
 # Configure the Gemini API key
@@ -99,6 +164,35 @@ genai.configure(api_key=os.getenv("GEMINI_KEY"))
 
 # Function to generate a recommendation for a specific issue
 @app.get("/recommendation/{issue_id}")
+
+@app.get("/recommendations/sprint/{sprint_id}")
+def get_sprint_recommendations(sprint_id: int):
+    response = supabase.table("recommendations").select("*").eq("sprint_id", sprint_id).execute()
+    return response.data
+
+@app.get("/recommendations/project/{project_id}")
+def get_project_recommendations(project_id: int):
+    response = supabase.table("recommendations").select("*").eq("project_id", project_id).execute()
+    return response.data
+
+# GET All Teams
+@app.get("/teams")
+def get_teams():
+    response = supabase.table("teams").select("*").execute()
+    return response.data
+
+#  GET Specific Team Details
+@app.get("/teams/{team_id}")
+def get_team(team_id: int):
+    response = supabase.table("teams").select("*").eq("id", team_id).execute()
+    return response.data
+
+# GET All Developers in a Team
+@app.get("/teams/{team_id}/developers")
+def get_team_developers(team_id: int):
+    response = supabase.table("developer").select("*").eq("team_id", team_id).execute()
+    return response.data
+
 
 def get_recommendation(issue_id: int):
     try:
@@ -200,10 +294,29 @@ def add_issue(ticket: Ticket):
     response1 = supabase.table("tickets").insert(ticket.dict()).execute()
     return response1.data
 
-@app.post("/projects")
-def add_project(project: Project):
-    response = supabase.table("projects").insert(project.dict()).execute()
+
+@app.post("/sprints")
+def add_sprint(sprint: Sprint):
+    response = supabase.table("sprints").insert(sprint.dict()).execute()
     return response.data
+
+@app.post("/recommendations")
+def add_recommendation(recommendation: Recommendation):
+    response = supabase.table("recommendations").insert(recommendation.dict()).execute()
+    return response.data
+
+# POST (Create a New Team)
+@app.post("/teams")
+def add_team(team: Team):
+    response = supabase.table("teams").insert(team.dict()).execute()
+    return response.data
+
+# Assign a Developer to a Team
+@app.post("/teams/{team_id}/add_developer/{developer_id}")
+def assign_developer_to_team(team_id: int, developer_id: int):
+    response = supabase.table("developer").update({"team_id": team_id}).eq("id", developer_id).execute()
+    return response.data
+
 
 @app.get("/login")
 def login_user(email: str, password: str):

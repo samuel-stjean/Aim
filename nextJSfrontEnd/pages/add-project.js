@@ -16,21 +16,24 @@ export default function AddProject() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:8000/projects', {
-        id: Date.now(), // or let the backend handle ID generation
+      const projectData = {
         project_name: projectName,
-        project_description: projectDescription,
-        team,
-        start_date: startDate,
-        end_date: endDate,
-        sprint_duration: sprintDuration,
-      });
-      router.push('/dashboard'); // Redirect after adding project
+        project_description: projectDescription || null,
+         // Replace with actual email if available
+        start_date: startDate || null,
+        end_date: endDate || null,
+        sprint_duration_weeks: sprintDuration ? parseInt(sprintDuration) : null
+      };
+      
+
+        await axios.post('http://127.0.0.1:8000/projects', projectData);
+        router.push('/dashboard');
     } catch (error) {
-      console.error('Failed to add project:', error);
-      alert('Error creating project.');
+        console.error('Failed to add project:', error);
+        alert('Error creating project.');
     }
-  };
+};
+
 
   return (
     <div className="add-project-container">

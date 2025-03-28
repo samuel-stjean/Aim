@@ -11,22 +11,24 @@ export default function ProjectDetails() {
   const { id } = router.query;
 
   useEffect(() => {
-    if (id) {
-      async function fetchProject() {
-        try {
-          const res = await axios.get(`http://127.0.0.1:8000/projects?id=eq.${id}`);
-          if (res.data.length > 0) {
-            setProject(res.data[0]);
-          }
-        } catch (error) {
-          console.error('Error fetching project details:', error);
-        } finally {
-          setLoading(false);
+    if (!router.isReady) return;
+  
+    async function fetchProject() {
+      try {
+        const res = await axios.get(`http://127.0.0.1:8000/projects?id=eq.${id}`);
+        if (res.data.length > 0) {
+          setProject(res.data[0]);
         }
+      } catch (error) {
+        console.error('Error fetching project details:', error);
+      } finally {
+        setLoading(false);
       }
-      fetchProject();
     }
-  }, [id]);
+  
+    fetchProject();
+  }, [router.isReady, id]);
+  
 
   if (loading) return <p>Loading...</p>;
   if (!project) return <p>Project not found.</p>;
