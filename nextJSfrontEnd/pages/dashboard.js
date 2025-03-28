@@ -38,7 +38,7 @@ export default function Dashboard() {
   };
 
   const handleAddProject = () => {
-    router.push('/addProject');
+    router.push('/add-project');
   };
 
   const handleManageTeams = () => {
