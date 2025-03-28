@@ -1,24 +1,51 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import ReactMarkdown from 'react-markdown';
 
 export default function SubmitProjectPrompt() {
   const router = useRouter();
+  const { id: projectId } = router.query;
+
+  const [projectName, setProjectName] = useState('');
   const [projectGoal, setProjectGoal] = useState('');
   const [projectScope, setProjectScope] = useState('');
   const [projectTimeline, setProjectTimeline] = useState('');
   const [projectOutline, setProjectOutline] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [revisePrompt, setRevisePrompt] = useState(false);
+  const topRef = useRef(null);
+
+  useEffect(() => {
+    if (!projectId) return;
+
+    axios.get(`http://127.0.0.1:8000/projects?id=eq.${projectId}`)
+      .then(res => {
+        if (res.data.length > 0) {
+          const project = res.data[0];
+          setProjectName(project.project_name || '');
+          setProjectGoal(project.project_description || '');
+        }
+      })
+      .catch(err => {
+        console.error('Failed to load project details:', err);
+      });
+  }, [projectId]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setRevisePrompt(false);
 
     try {
       const response = await axios.get('http://127.0.0.1:8000/project_outline', {
-        params: { project_goal: projectGoal, project_scope: projectScope, project_timeline: projectTimeline },
+        params: {
+          project_goal: projectGoal,
+          project_scope: projectScope,
+          project_timeline: projectTimeline,
+        },
       });
 
       setProjectOutline(response.data.project_outline);
@@ -30,38 +57,50 @@ export default function SubmitProjectPrompt() {
     }
   };
 
+  const handleUnsatisfied = () => {
+    if (topRef.current) {
+      topRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+    setRevisePrompt(true);
+  };
+
   return (
     <div style={styles.container}>
-      <h1 style={styles.title}>Submit Project Prompt</h1>
+      <div ref={topRef}></div>
+      <h1 style={styles.title}>Outline for {projectName || 'Project'}</h1>
+
+      {revisePrompt && (
+        <p style={styles.reviseText}>
+          Not satisfied? Try refining your goal, scope, or timeline for a better outline.
+        </p>
+      )}
+
       <form onSubmit={handleSubmit} style={styles.form}>
         <label style={styles.label}>
           Project Goal:
-          <input
-            type="text"
+          <textarea
             value={projectGoal}
             onChange={(e) => setProjectGoal(e.target.value)}
             style={styles.input}
-            required
+            rows={2}
           />
         </label>
         <label style={styles.label}>
           Project Scope:
-          <input
-            type="text"
+          <textarea
             value={projectScope}
             onChange={(e) => setProjectScope(e.target.value)}
             style={styles.input}
-            required
+            rows={2}
           />
         </label>
         <label style={styles.label}>
           Project Timeline:
-          <input
-            type="text"
+          <textarea
             value={projectTimeline}
             onChange={(e) => setProjectTimeline(e.target.value)}
             style={styles.input}
-            required
+            rows={2}
           />
         </label>
         <button type="submit" style={styles.button} disabled={loading}>
@@ -72,84 +111,154 @@ export default function SubmitProjectPrompt() {
       {error && <p style={styles.error}>{error}</p>}
 
       {projectOutline && (
-        <div style={styles.outputContainer}>
-          <h2>Project Outline</h2>
-          <p>{projectOutline}</p>
-        </div>
-      )}
+        <>
+          <div style={styles.outputContainer}>
+            <ReactMarkdown>{projectOutline}</ReactMarkdown>
+          </div>
 
-      <button style={styles.backButton} onClick={() => router.push('/')}>
-        Back to Home
-      </button>
+          <div style={styles.buttonRow}>
+            <button style={styles.acceptButton} onClick={() => router.push(`/project/${projectId}`)}>
+              Accept Outline
+            </button>
+            <button style={styles.unsatisfiedButton} onClick={handleUnsatisfied}>
+              Unsatisfied with Outline
+            </button>
+          </div>
+        </>
+      )}
+      <div style={styles.buttonRow}>
+            <button style={styles.backButton} onClick={() => router.push('/dashboard')}>
+              Back to Dashboard
+            </button>
+            {projectId && (
+              <button style={styles.backButton} onClick={() => router.push(`/project/${projectId}`)}>
+                Back to Project
+              </button>
+            )}
+          </div>
     </div>
   );
 }
+
+// [Keep styles object as-is]
 
 const styles = {
   container: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    padding: '20px',
+    minHeight: '100vh',
+    backgroundColor: '#4079e1',
+    padding: '40px',
   },
   title: {
-    fontSize: '2rem',
+    fontSize: '2.5rem',
     fontWeight: 'bold',
     marginBottom: '20px',
-    color: '#04e42d',
+    color: 'white',
+  },
+  reviseText: {
+    color: 'white',
+    fontStyle: 'italic',
+    marginBottom: '20px',
+    fontSize: '1.1rem',
+    textAlign: 'center',
   },
   form: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
-    width: '300px',
+    gap: '15px',
+    width: '100%',
+    maxWidth: '500px',
+    background: 'white',
+    padding: '30px',
+    borderRadius: '10px',
+    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
   },
   label: {
     display: 'flex',
     flexDirection: 'column',
     fontSize: '1rem',
     fontWeight: 'bold',
+    color: 'black',
   },
   input: {
-    padding: '8px',
-    fontSize: '1rem',
-    border: '1px solid #04e42d',
-    borderRadius: '5px',
-  },
-  button: {
     padding: '10px',
     fontSize: '1rem',
-    cursor: 'pointer',
-    border: 'none',
+    border: '2px solid #ccc',
     borderRadius: '5px',
-    backgroundColor: '#4a4440',
-    color: '#04e42d',
-    transition: 'background-color 0.3s',
+    color: 'black',
+    backgroundColor: 'white',
+    resize: 'vertical',
+  },
+  button: {
+    width: '100%',
+    padding: '14px',
+    fontSize: '1.1rem',
+    fontWeight: 'bold',
+    border: 'none',
+    borderRadius: '6px',
+    backgroundColor: '#305cb5',
+    color: 'white',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease-in-out',
   },
   error: {
     color: 'red',
     marginTop: '10px',
+    textAlign: 'center',
   },
   outputContainer: {
     marginTop: '20px',
-    padding: '10px',
-    border: '1px solid #04e42d',
-    borderRadius: '5px',
-    backgroundColor: '#fff',
-    color: '#000',
-    maxWidth: '500px',
-    textAlign: 'center',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+    padding: '20px',
+    border: '1px solid #ccc',
+    borderRadius: '10px',
+    backgroundColor: 'white',
+    color: 'black',
+    maxWidth: '800px',
+    width: '95%',
+    textAlign: 'left',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+    fontFamily: 'Arial, sans-serif',
+    fontSize: '1rem',
+    lineHeight: '1.6',
+  },
+  buttonRow: {
+    marginTop: '30px',
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '12px',
+    justifyContent: 'center',
   },
   backButton: {
-    marginTop: '20px',
-    padding: '10px 20px',
-    fontSize: '1rem',
-    cursor: 'pointer',
+    padding: '14px 24px',
+    fontSize: '1.05rem',
+    fontWeight: 'bold',
     border: 'none',
-    borderRadius: '5px',
-    backgroundColor: '#4a4440',
-    color: '#04e42d',
-    transition: 'background-color 0.3s',
+    borderRadius: '6px',
+    backgroundColor: '#305cb5',
+    color: 'white',
+    cursor: 'pointer',
+    transition: 'background-color 0.3s ease-in-out',
+  },
+  acceptButton: {
+    padding: '14px 24px',
+    fontSize: '1.05rem',
+    fontWeight: 'bold',
+    border: 'none',
+    borderRadius: '6px',
+    backgroundColor: '#28a745',
+    color: 'white',
+    cursor: 'pointer',
+  },
+  unsatisfiedButton: {
+    padding: '14px 24px',
+    fontSize: '1.05rem',
+    fontWeight: 'bold',
+    border: 'none',
+    borderRadius: '6px',
+    backgroundColor: '#d9534f',
+    color: 'white',
+    cursor: 'pointer',
   },
 };

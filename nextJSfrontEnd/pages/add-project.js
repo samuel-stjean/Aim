@@ -19,7 +19,7 @@ export default function AddProject() {
       const projectData = {
         project_name: projectName,
         project_description: projectDescription || null,
-         // Replace with actual email if available
+         
         start_date: startDate || null,
         end_date: endDate || null,
         sprint_duration_weeks: sprintDuration ? parseInt(sprintDuration) : null

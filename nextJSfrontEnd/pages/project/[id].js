@@ -42,7 +42,12 @@ export default function ProjectDetails() {
         </button>
         <h1 className="project-title">{project.project_name}</h1>
         <p className="project-description">{project.project_description}</p>
+        
+        <button className="outline-button" onClick={() => router.push(`/submit-project?id=${id}`)}>
+          Submit Prompt for This Project
+        </button>
       </div>
+      
       <style jsx>{`
         .project-details-container {
           display: flex;
@@ -84,6 +89,22 @@ export default function ProjectDetails() {
           max-width: 90%;
           margin: 0 auto;
         }
+        .outline-button {
+          margin-top: 30px;
+          padding: 12px 24px;
+          font-size: 1.2rem;
+          font-weight: bold;
+          border: none;
+          border-radius: 5px;
+          background: #305cb5;
+          color: white;
+          cursor: pointer;
+          transition: 0.3s ease-in-out;
+      }
+.outline-button:hover {
+  background: #264a8a;
+}
+
       `}</style>
     </div>
   );

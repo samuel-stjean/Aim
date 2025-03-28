@@ -11,15 +11,19 @@ export default function AddTeam() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:8000/teams', {
-        team_name: teamName,
-      });
-      router.push('/teams'); // Redirect after adding team
+      const payload = {
+        team_name: teamName
+      };
+      console.log("📦 Sending to backend:", payload);
+  
+      await axios.post('http://127.0.0.1:8000/teams', payload);
+      router.push('/teams');
     } catch (error) {
       console.error('Failed to add team:', error);
       alert('Error creating team.');
     }
   };
+  
 
   return (
     <div className="add-team-container">

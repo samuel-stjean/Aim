@@ -1,10 +1,13 @@
 import ast
 import os
 from http.client import responses
-from fastapi import FastAPI, HTTPException, Request  # ← Add Request here
+from typing import Optional
+from fastapi import FastAPI, HTTPException, Request  
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 
 from supabase import create_client, Client
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import google.generativeai as genai
 from fastapi.middleware.cors import CORSMiddleware
 from jira import JIRA
@@ -108,9 +111,12 @@ class Recommendation(BaseModel):
     description: str
 
 class Team(BaseModel):
-    id: int
+    id: Optional[int] = Field(default=None)
     team_name: str
-    project_id: int
+    project_id: Optional[int] = Field(default=None)
+
+print("🧠 FastAPI thinks this is the Team model schema:\n", Team.schema())
+
 
 
 @app.get("/developer")
@@ -306,10 +312,17 @@ def add_recommendation(recommendation: Recommendation):
     return response.data
 
 # POST (Create a New Team)
+# @app.post("/teams")
+# def add_team(team: Team):
+#     response = supabase.table("teams").insert(team.dict()).execute()
+#     return response.data
+
 @app.post("/teams")
-def add_team(team: Team):
-    response = supabase.table("teams").insert(team.dict()).execute()
+async def add_team(team: Team):
+    print("📨 Received team model:", team)
+    response = supabase.table("teams").insert(team.dict(exclude_unset=True)).execute()
     return response.data
+
 
 # Assign a Developer to a Team
 @app.post("/teams/{team_id}/add_developer/{developer_id}")
@@ -371,3 +384,10 @@ def extract_tickets(text):
     
     return processed_tickets  # Return list of valid JSON tickets
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request, exc):
+    print(" Validation Error:", exc)
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors(), "body": exc.body}
+    )
