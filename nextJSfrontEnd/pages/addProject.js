@@ -15,7 +15,7 @@ export default function AddProject() {
         project_name: projectName,
         project_description: projectDescription
       });
-      router.push('/');  // Redirect back home or projects overview after creation
+      router.push('/dashboard');  // Redirect back home or projects overview after creation
     } catch (error) {
       console.error("Failed to add project:", error);
       alert("Error creating project.");

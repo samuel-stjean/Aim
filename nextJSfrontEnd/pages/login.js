@@ -37,7 +37,7 @@ const Login = () => {
       }
     
       console.log('Logging in with:', { email, password });
-      router.push('/projectDashboard'); // Redirect after login
+      router.push('/dashboard'); // Redirect after login
     } catch (error) {
       console.error('Error during login:', error);
       router.push('/login'); // Redirect to login page on error

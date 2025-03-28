@@ -29,7 +29,7 @@ export default function Dashboard() {
 
       fetchProjects();
     } else {
-      router.push('/login'); // No user? Redirect to login
+      router.push('/login');
     }
   }, []);
 
@@ -38,7 +38,7 @@ export default function Dashboard() {
   };
 
   const handleAddProject = () => {
-    router.push('/add-project');
+    router.push('/addProject');
   };
 
   const handleManageTeams = () => {
@@ -54,8 +54,8 @@ export default function Dashboard() {
 
           {user && (
             <div className="user-info">
-              <p><strong>Welcome,</strong> {user.firstName} {user.lastName}</p>
-              <p><strong>Email:</strong> {user.email}</p>
+              <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Welcome,</strong> {user.firstName} {user.lastName}</p>
+              <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Email:</strong> {user.email}</p>
             </div>
           )}
 
@@ -73,7 +73,7 @@ export default function Dashboard() {
                   </div>
                 ))
               ) : (
-                <p style={{ paddingTop: '1rem' }}>You don’t have any projects yet. Click + to add one!</p>
+                <p className = "black-title">You don’t have any projects yet. Click + to add one!</p>
               )}
             </div>
           </div>
