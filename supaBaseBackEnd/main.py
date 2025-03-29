@@ -89,6 +89,7 @@ class Project(BaseModel):
     sprint_duration_weeks: int | None = None  # Rename field
     start_date: str | None = None
     end_date: str | None = None
+    project_manager_id: int
 
 
 class Sprint(BaseModel):
@@ -337,7 +338,7 @@ def assign_developer_to_team(team_id: int, developer_id: int):
 @app.get("/login")
 def login_user(email: str, password: str):
 
-    response = supabase.table("user").select("id, firstName, lastName, email").eq("email", email).eq("password", password).execute()
+    response = supabase.table("user").select("id, firstName, lastName, email, username").eq("email", email).eq("password", password).execute()
         
     if not response.data:
         return 

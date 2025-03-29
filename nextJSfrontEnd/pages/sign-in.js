@@ -21,7 +21,7 @@ const Login = () => {
   
       if (!response.data || response.data.length === 0) {
         console.error('Invalid login credentials');
-        router.push('/login');
+        router.push('/sign-in');
         return;
       }
   
@@ -31,7 +31,7 @@ const Login = () => {
       sessionStorage.setItem('user', JSON.stringify(loggedInUser));
   
       console.log('User logged in:', loggedInUser);
-      router.push('/dashboard');
+      router.replace('/dashboard');
     } catch (error) {
       console.error('Error during login:', error);
       router.push('/login');

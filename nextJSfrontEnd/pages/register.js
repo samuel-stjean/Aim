@@ -53,7 +53,8 @@ const Register = () => {
       if (response.data && response.data.length > 0) {
         const savedUser = response.data[0];
         sessionStorage.setItem('user', JSON.stringify(savedUser)); // Save entire user object
-        router.push('/dashboard');
+        sessionStorage.clear();
+        router.replace('/dashboard');
       } else {
         setError('Something went wrong. Please try again.');
       }

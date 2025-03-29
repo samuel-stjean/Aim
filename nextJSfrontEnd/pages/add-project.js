@@ -28,7 +28,7 @@ export default function AddProject() {
         id: Date.now(), // Or remove if backend auto-generates it
       project_name: projectName,
       project_description: projectDescription,
-      project_manager_email: user.email,
+      project_manager_id: user.id,
       });
       router.push('/dashboard'); // Redirect after adding project
     } catch (error) {
