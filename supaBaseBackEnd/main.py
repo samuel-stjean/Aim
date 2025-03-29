@@ -111,9 +111,9 @@ class Recommendation(BaseModel):
     description: str
 
 class Team(BaseModel):
-    id: Optional[int] = Field(default=None)
+    id: int | None = None
     team_name: str
-    project_id: Optional[int] = Field(default=None)
+    project_id: Optional[int] = None
 
 print("🧠 FastAPI thinks this is the Team model schema:\n", Team.schema())
 
