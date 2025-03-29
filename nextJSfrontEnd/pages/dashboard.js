@@ -11,27 +11,33 @@ export default function Dashboard() {
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem('user');
+  
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
-
+  
       async function fetchProjects() {
         try {
           const res = await axios.get('http://127.0.0.1:8000/projects');
-          const userProjects = res.data.filter(
-            (project) => project.project_manager_email === parsedUser.email
-          );
-          setProjects(userProjects);
+          
+          // ✅ Check user before filtering
+          if (parsedUser) {
+            const userProjects = res.data.filter(
+              (project) => project.project_manager_id === parsedUser.id
+            );
+            setProjects(userProjects);
+          }
         } catch (error) {
           console.error('Error fetching projects:', error);
         }
       }
-
+  
       fetchProjects();
     } else {
-      router.push('/login');
+      router.replace('/');
     }
-  }, [router]);
+  }, []);
+  
 
   const handleProjectClick = (projectId) => {
     router.push(`/project/${projectId}`);

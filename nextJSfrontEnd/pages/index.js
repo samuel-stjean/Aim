@@ -27,11 +27,11 @@ export default function Home() {
 
   // Handle redirect to the login page
   const handleLogin = () => {
-    router.push('/login');
+    router.push('/sign-in');
   };
 
   const handleRegisterUser = () => {
-    router.push('/new-user');
+    router.push('/register');
   };
 
   return (

@@ -66,77 +66,85 @@ export default function SubmitProjectPrompt() {
 
   return (
     <div style={styles.container}>
-      <div ref={topRef}></div>
-      <h1 style={styles.title}>Outline for {projectName || 'Project'}</h1>
+  <div ref={topRef}></div>
+  <h1 style={styles.title}>Outline for {projectName || 'Project'}</h1>
 
-      {revisePrompt && (
-        <p style={styles.reviseText}>
-          Not satisfied? Try refining your goal, scope, or timeline for a better outline.
+  {revisePrompt && (
+    <p style={styles.reviseText}>
+      Not satisfied? Try refining your goal, scope, or timeline for a better outline.
+    </p>
+  )}
+
+  <div style={styles.contentRow}>
+    {/* Form section */}
+    <form onSubmit={handleSubmit} style={styles.form}>
+      <label style={styles.label}>
+        Project Goal:
+        <textarea
+          value={projectGoal}
+          onChange={(e) => setProjectGoal(e.target.value)}
+          style={styles.input}
+          rows={2}
+        />
+      </label>
+      <label style={styles.label}>
+        Project Scope:
+        <textarea
+          value={projectScope}
+          onChange={(e) => setProjectScope(e.target.value)}
+          style={styles.input}
+          rows={2}
+        />
+      </label>
+      <label style={styles.label}>
+        Project Timeline:
+        <textarea
+          value={projectTimeline}
+          onChange={(e) => setProjectTimeline(e.target.value)}
+          style={styles.input}
+          rows={2}
+        />
+      </label>
+      <button type="submit" style={styles.button} disabled={loading}>
+        {loading ? 'Generating...' : 'Generate Outline'}
+      </button>
+      {error && <p style={styles.error}>{error}</p>}
+    </form>
+
+    {/* Outline Preview */}
+    <div style={styles.previewBox}>
+      {projectOutline ? (
+        <ReactMarkdown>{projectOutline}</ReactMarkdown>
+      ) : (
+        <p style={{ color: '#888', fontStyle: 'italic' }}>
+          Your generated project outline will appear here.
         </p>
       )}
-
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <label style={styles.label}>
-          Project Goal:
-          <textarea
-            value={projectGoal}
-            onChange={(e) => setProjectGoal(e.target.value)}
-            style={styles.input}
-            rows={2}
-          />
-        </label>
-        <label style={styles.label}>
-          Project Scope:
-          <textarea
-            value={projectScope}
-            onChange={(e) => setProjectScope(e.target.value)}
-            style={styles.input}
-            rows={2}
-          />
-        </label>
-        <label style={styles.label}>
-          Project Timeline:
-          <textarea
-            value={projectTimeline}
-            onChange={(e) => setProjectTimeline(e.target.value)}
-            style={styles.input}
-            rows={2}
-          />
-        </label>
-        <button type="submit" style={styles.button} disabled={loading}>
-          {loading ? 'Generating...' : 'Generate Outline'}
-        </button>
-      </form>
-
-      {error && <p style={styles.error}>{error}</p>}
-
-      {projectOutline && (
-        <>
-          <div style={styles.outputContainer}>
-            <ReactMarkdown>{projectOutline}</ReactMarkdown>
-          </div>
-
-          <div style={styles.buttonRow}>
-            <button style={styles.acceptButton} onClick={() => router.push(`/project/${projectId}`)}>
-              Accept Outline
-            </button>
-            <button style={styles.unsatisfiedButton} onClick={handleUnsatisfied}>
-              Unsatisfied with Outline
-            </button>
-          </div>
-        </>
-      )}
-      <div style={styles.buttonRow}>
-            <button style={styles.backButton} onClick={() => router.push('/dashboard')}>
-              Back to Dashboard
-            </button>
-            {projectId && (
-              <button style={styles.backButton} onClick={() => router.push(`/project/${projectId}`)}>
-                Back to Project
-              </button>
-            )}
-          </div>
     </div>
+  </div>
+
+  {/* Buttons below */}
+  <div style={styles.buttonRow}>
+    {projectOutline && (
+      <>
+        <button style={styles.acceptButton} onClick={() => router.push(`/project/${projectId}`)}>
+          Accept Outline
+        </button>
+        <button style={styles.unsatisfiedButton} onClick={handleUnsatisfied}>
+          Unsatisfied with Outline
+        </button>
+      </>
+    )}
+    <button style={styles.backButton} onClick={() => router.push('/dashboard')}>
+      Back to Dashboard
+    </button>
+    {projectId && (
+      <button style={styles.backButton} onClick={() => router.push(`/project/${projectId}`)}>
+        Back to Project
+      </button>
+    )}
+  </div>
+</div>
   );
 }
 
@@ -174,7 +182,13 @@ const styles = {
     padding: '30px',
     borderRadius: '10px',
     boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+    position: 'sticky',      // 👈 makes it sticky
+    top: '100px',            // 👈 how far from the top it sticks
+    alignSelf: 'flex-start', // 👈 so it aligns to the top of its flex row
+    maxHeight: '80vh',
+    overflowY: 'auto',
   },
+  
   label: {
     display: 'flex',
     flexDirection: 'column',
@@ -261,4 +275,31 @@ const styles = {
     color: 'white',
     cursor: 'pointer',
   },
+  contentRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    gap: '30px',
+    width: '100%',
+    maxWidth: '1100px',
+    marginTop: '20px',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  
+  previewBox: {
+    flex: 1,
+    backgroundColor: 'white',
+    color: 'black',
+    padding: '20px',
+    borderRadius: '10px',
+    border: '1px solid #ccc',
+    minHeight: '300px',
+    maxWidth: '600px',
+    boxShadow: '0 4px 10px rgba(0, 0, 0, 0.1)',
+    fontSize: '1rem',
+    lineHeight: '1.6',
+    fontFamily: 'Arial, sans-serif',
+    overflowY: 'auto',
+  },
+  
 };
