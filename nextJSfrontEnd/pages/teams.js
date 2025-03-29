@@ -8,17 +8,38 @@ export default function Teams() {
   const [teams, setTeams] = useState([]);
   const router = useRouter();
 
+  // useEffect(() => {
+  //   async function fetchTeams() {
+  //     try {
+  //       const res = await axios.get('http://127.0.0.1:8000/teams');
+  //       setTeams(res.data);
+  //     } catch (error) {
+  //       console.error('Error fetching teams:', error);
+  //     }
+  //   }
+  //   fetchTeams();
+  // }, []);
+
   useEffect(() => {
-    async function fetchTeams() {
-      try {
-        const res = await axios.get('http://127.0.0.1:8000/teams');
-        setTeams(res.data);
-      } catch (error) {
-        console.error('Error fetching teams:', error);
-      }
+  const storedUser = sessionStorage.getItem('user');
+  if (!storedUser) return;
+
+  const user = JSON.parse(storedUser);
+
+  async function fetchTeams() {
+    try {
+      const res = await axios.get(`http://127.0.0.1:8000/teams`, {
+        params: { user_id: user.id }
+      });
+      setTeams(res.data);
+    } catch (error) {
+      console.error('Error fetching teams:', error);
     }
-    fetchTeams();
-  }, []);
+  }
+
+  fetchTeams();
+}, []);
+
 
   const handleAddTeam = () => {
     router.push('/add-team');
@@ -38,7 +59,7 @@ export default function Teams() {
           </div>
         ))}
       </div>
-      <button className="add-team-button" onClick={handleAddTeam}>Add Team</button>
+      {/* <button className="add-team-button" onClick={handleAddTeam}>Add Team</button> */}
       <style jsx>{`
         .teams-container {
           display: flex;
@@ -67,11 +88,18 @@ export default function Teams() {
           box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
           text-align: center;
         }
+        .team-card h2 {
+          color: black;
+        }
+        .team-members p {
+          color: black;
+        }
         .team-members {
           display: flex;
           flex-wrap: wrap;
           gap: 10px;
           justify-content: center;
+          color: black;
         }
         .member-card {
           background: #305cb5;
@@ -104,7 +132,7 @@ function TeamMembers({ teamId }) {
   useEffect(() => {
     async function fetchMembers() {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/teams/${teamId}/developers`);
+        const res = await axios.get(`http://127.0.0.1:8000/teams/${teamId}/members`);
         setMembers(res.data);
       } catch (error) {
         console.error('Error fetching team members:', error);
@@ -114,7 +142,7 @@ function TeamMembers({ teamId }) {
   }, [teamId]);
 
   return (
-    <div>
+    <div className="team-members">
       {members.length > 0 ? (
         members.map((member) => (
           <div key={member.id} className="member-card">{member.name}</div>

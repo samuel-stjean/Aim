@@ -109,11 +109,19 @@ class Recommendation(BaseModel):
     description: str
 
 class Team(BaseModel):
-    id: int | None = None
     team_name: str
-    project_id: Optional[int] = None
+    user_id: int  # <- make this required
 
-print("🧠 FastAPI thinks this is the Team model schema:\n", Team.schema())
+class Member(BaseModel):
+    id: int | None = None
+    name: str
+    team_id: int
+    skills: list[str]
+
+
+
+
+print(" Final Team model schema:", Team.schema())
 
 
 
@@ -122,10 +130,10 @@ def get_users():
     response = supabase.table("developer").select("*").execute()
     return response.data
 
-@app.get("/team")
-def get_team(user_id: int):
-    response = supabase.table("developer").select("*").eq("user_id", user_id).execute()
-    return response.data
+# @app.get("/team")
+# def get_team(user_id: int):
+#     response = supabase.table("developer").select("*").eq("user_id", user_id).execute()
+#     return response.data
 
 @app.get("/issues")
 def get_issues():
@@ -172,7 +180,6 @@ def get_sprints():
 genai.configure(api_key=os.getenv("GEMINI_KEY"))
 
 # Function to generate a recommendation for a specific issue
-@app.get("/recommendation/{issue_id}")
 
 @app.get("/recommendations/sprint/{sprint_id}")
 def get_sprint_recommendations(sprint_id: int):
@@ -185,10 +192,16 @@ def get_project_recommendations(project_id: int):
     return response.data
 
 # GET All Teams
+# @app.get("/teams")
+# def get_teams():
+#     response = supabase.table("teams").select("*").execute()
+#     return response.data
+
 @app.get("/teams")
-def get_teams():
-    response = supabase.table("teams").select("*").execute()
+def get_teams(user_id: int):
+    response = supabase.table("teams").select("*").eq("user_id", user_id).execute()
     return response.data
+
 
 #  GET Specific Team Details
 @app.get("/teams/{team_id}")
@@ -282,16 +295,37 @@ def generate_project_outline(project_goal: str, project_scope: str, project_time
         raise HTTPException(status_code=500, detail="Failed to generate project outline.")
 
 
+# @app.post("/createUser")
+# def add_user(user: User):
+#     response = supabase.table("user").insert(user.dict()).execute()
+#     print(response)
+#     return response.data
+
 @app.post("/createUser")
 def add_user(user: User):
     response = supabase.table("user").insert(user.dict()).execute()
-    print(response)
+    if not response.data:
+        raise HTTPException(status_code=500, detail="User creation failed.")
+    
+    new_user = response.data[0]
+    
+    # Automatically create a team for the new user
+    team_insert = {
+        "team_name": f"{new_user['firstName']}'s Team",
+        "user_id": new_user["id"]
+    }
+    
+    supabase.table("teams").insert(team_insert).execute()
+
     return response.data
 
-@app.post("/developer")
-def add_user(developer: Developer):
-    response = supabase.table("developer").insert(developer.dict()).execute()
-    return response.data
+
+
+
+# @app.post("/developer")
+# def add_user(developer: Developer):
+#     response = supabase.table("developer").insert(developer.dict()).execute()
+#     return response.data
 
 @app.post("/issues")
 def add_issue(issue: Issue):
@@ -321,10 +355,12 @@ def add_recommendation(recommendation: Recommendation):
 #     return response.data
 
 @app.post("/teams")
-async def add_team(team: Team):
-    print("📨 Received team model:", team)
+async def add_team(team: Team):  # use TeamCreate if you're using it
+    print("✅ BACKEND RECEIVED team model:", team)
     response = supabase.table("teams").insert(team.dict(exclude_unset=True)).execute()
     return response.data
+
+
 
 
 # Assign a Developer to a Team
@@ -385,4 +421,35 @@ def extract_tickets(text):
     ]
     
     return processed_tickets  # Return list of valid JSON tickets
+
+
+# GET all members for a specific team
+@app.get("/teams/{team_id}/members")
+def get_members(team_id: int):
+    response = supabase.table("members").select("*").eq("team_id", team_id).execute()
+    return response.data
+
+# POST a new member
+@app.post("/members")
+def add_member(member: Member):
+    print(" Received member:", member)
+    try:
+        response = supabase.table("members").insert(member.dict(exclude_none=True)).execute()
+        return response.data
+    except Exception as e:
+        print(" Error inserting member:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+# PUT (edit) a member
+@app.put("/members/{member_id}")
+def update_member(member_id: int, member: Member):
+    response = supabase.table("members").update(member.dict(exclude_none=True)).eq("id", member_id).execute()
+    return response.data
+
+# DELETE a member
+@app.delete("/members/{member_id}")
+def delete_member(member_id: int):
+    response = supabase.table("members").delete().eq("id", member_id).execute()
+    return {"message": "Member deleted"}
+
 

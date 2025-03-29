@@ -42,8 +42,9 @@ export default function Dashboard() {
   };
 
   const handleManageTeams = () => {
-    router.push('/teams');
+    router.push('/manage-team');  
   };
+  
 
   return (
     <div className="dashboard-page">
@@ -80,7 +81,7 @@ export default function Dashboard() {
 
           <div className="dashboard-actions">
             <button className="manage-teams-button" onClick={handleManageTeams}>
-              Manage Teams
+              Manage Team
             </button>
             <button className="add-project-button" onClick={handleAddProject}>
               +
