@@ -61,9 +61,7 @@ class Developer(BaseModel):
     id: int
     name: str
     hours_of_work_assigned_this_week: int
-    skills: str
     user_id: int
-    team_id: int  
 
 class Issue(BaseModel):
     id: int
@@ -122,6 +120,11 @@ print("🧠 FastAPI thinks this is the Team model schema:\n", Team.schema())
 @app.get("/developer")
 def get_users():
     response = supabase.table("developer").select("*").execute()
+    return response.data
+
+@app.get("/team")
+def get_team(user_id: int):
+    response = supabase.table("developer").select("*").eq("user_id", user_id).execute()
     return response.data
 
 @app.get("/issues")
@@ -334,14 +337,13 @@ def assign_developer_to_team(team_id: int, developer_id: int):
 @app.get("/login")
 def login_user(email: str, password: str):
 
-    response = supabase.table("user").select("*").eq("email", email).eq("password", password).execute()
+    response = supabase.table("user").select("id, firstName, lastName, email").eq("email", email).eq("password", password).execute()
         
     if not response.data:
-
         return 
     
-    else:  
-        return response.data
+    return response.data
+
 
 def extract_tickets(text):
 
@@ -384,10 +386,3 @@ def extract_tickets(text):
     
     return processed_tickets  # Return list of valid JSON tickets
 
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
-    print(" Validation Error:", exc)
-    return JSONResponse(
-        status_code=422,
-        content={"detail": exc.errors(), "body": exc.body}
-    )

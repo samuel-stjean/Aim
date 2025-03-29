@@ -15,25 +15,27 @@ export default function AddProject() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+  const user = JSON.parse(sessionStorage.getItem('user'));
+
+  if (!user) {
+    alert('You must be logged in to create a project.');
+    return;
+  }
+
     try {
-      const projectData = {
-        project_name: projectName,
-        project_description: projectDescription || null,
-         
-        start_date: startDate || null,
-        end_date: endDate || null,
-        sprint_duration_weeks: sprintDuration ? parseInt(sprintDuration) : null
-      };
-      
-
-        await axios.post('http://127.0.0.1:8000/projects', projectData);
-        router.push('/dashboard');
+      await axios.post('http://127.0.0.1:8000/projects', {
+        id: Date.now(), // Or remove if backend auto-generates it
+      project_name: projectName,
+      project_description: projectDescription,
+      project_manager_email: user.email,
+      });
+      router.push('/dashboard'); // Redirect after adding project
     } catch (error) {
-        console.error('Failed to add project:', error);
-        alert('Error creating project.');
+      console.error('Failed to add project:', error);
+      alert('Error creating project.');
     }
-};
-
+  };
 
   return (
     <div className="add-project-container">

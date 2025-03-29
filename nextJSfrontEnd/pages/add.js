@@ -18,14 +18,17 @@ export default function AddNewDeveloper() {
       name,
       hours_of_work_assigned_this_week: hours,
       skills,
+      user_id: sessionStorage.getItem('userId') // Get the user ID from session storage
     };
 
     try {
+      
+      alert(`Developer added successfully! ${developer.user_id}`); // Mock alert, replace with API call later
       // Post to the backend to add the developer to Supabase
       await axios.post('http://127.0.0.1:8000/developer', developer);
 
       // Redirect to homepage after successful submission
-      router.push('/');
+      router.push('/setUpTeam');
     } catch (error) {
       console.error('Error adding developer:', error);
     }
@@ -49,6 +52,7 @@ export default function AddNewDeveloper() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="input"
+              style={{ color: 'white' }} // Set text color to white
               required
             />
           </div>
@@ -61,6 +65,7 @@ export default function AddNewDeveloper() {
               value={hours}
               onChange={(e) => setHours(Number(e.target.value))}
               className="input"
+              style={{ color: 'white' }}
               required
             />
           </div>
@@ -73,6 +78,7 @@ export default function AddNewDeveloper() {
               value={skills}
               onChange={(e) => setSkills(e.target.value)}
               className="input"
+              style={{ color: 'white' }}
               required
             />
           </div>
