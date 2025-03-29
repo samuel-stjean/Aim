@@ -214,14 +214,13 @@ def add_project(project: Project):
 @app.get("/login")
 def login_user(email: str, password: str):
 
-    response = supabase.table("user").select("id").eq("email", email).eq("password", password).execute()
+    response = supabase.table("user").select("id, firstName, lastName, email").eq("email", email).eq("password", password).execute()
         
     if not response.data:
-
         return 
     
-    else:  
-        return response.data
+    return response.data
+
 
 def extract_tickets(text):
 
