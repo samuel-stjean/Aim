@@ -43,9 +43,14 @@ export default function ProjectDetails() {
         <h1 className="project-title">{project.project_name}</h1>
         <p className="project-description">{project.project_description}</p>
         
-        <button className="outline-button" onClick={() => router.push(`/submit-project?id=${id}`)}>
-          Submit Prompt for This Project
-        </button>
+        <div className="button-container">
+          <button className="outline-button" onClick={() => router.push(`/submit-project?id=${id}`)}>
+            Submit Prompt for This Project
+          </button>
+          <button className="outline-button" onClick={() => router.push(`/delete-project?id=${id}`)}>
+            Delete Project
+          </button>
+        </div>
       </div>
       
       <style jsx>{`
@@ -89,8 +94,13 @@ export default function ProjectDetails() {
           max-width: 90%;
           margin: 0 auto;
         }
-        .outline-button {
+        .button-container {
+          display: flex;
+          justify-content: center;
+          gap: 20px;
           margin-top: 30px;
+        }
+        .outline-button {
           padding: 12px 24px;
           font-size: 1.2rem;
           font-weight: bold;
@@ -100,11 +110,10 @@ export default function ProjectDetails() {
           color: white;
           cursor: pointer;
           transition: 0.3s ease-in-out;
-      }
-.outline-button:hover {
-  background: #264a8a;
-}
-
+        }
+        .outline-button:hover {
+          background: #264a8a;
+        }
       `}</style>
     </div>
   );
