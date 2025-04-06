@@ -9,25 +9,25 @@ export default function AddNewDeveloper() {
   const [skills, setSkills] = useState("");
   const router = useRouter();
 
-  // Handle form submission to add developer
+  // Handle form submission to add developers
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     const developer = {
-      id: Math.floor(Math.random() * 1000),  // Generate a random ID or let the DB handle it
+      id: Math.floor(Math.random() * 1000),  // Generate a random ID or let the DB handle its
       name,
       hours_of_work_assigned_this_week: hours,
       skills,
-      user_id: sessionStorage.getItem('userId') // Get the user ID from session storage
+      user_id: sessionStorage.getItem('userId') // Get the user ID from session storages
     };
 
     try {
       
-      alert(`Developer added successfully! ${developer.user_id}`); // Mock alert, replace with API call later
-      // Post to the backend to add the developer to Supabase
+      alert(`Developer added successfully! ${developer.user_id}`); // Mock alert, replace with API call laters
+      // Post to the backend to add the developer to Supabases
       await axios.post('http://127.0.0.1:8000/developer', developer);
 
-      // Redirect to homepage after successful submission
+      // Redirect to homepage after successful submissions
       router.push('/setUpTeam');
     } catch (error) {
       console.error('Error adding developer:', error);

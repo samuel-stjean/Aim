@@ -441,13 +441,13 @@ def add_member(member: Member):
         print(" Error inserting member:", e)
         raise HTTPException(status_code=500, detail=str(e))
 
-# PUT (edit) a member
+# PUT (edit) a members
 @app.put("/members/{member_id}")
 def update_member(member_id: int, member: Member):
     response = supabase.table("members").update(member.dict(exclude_none=True)).eq("id", member_id).execute()
     return response.data
 
-# DELETE a member
+# DELETE a members
 @app.delete("/members/{member_id}")
 def delete_member(member_id: int):
     response = supabase.table("members").delete().eq("id", member_id).execute()
@@ -458,5 +458,3 @@ def delete_member(member_id: int):
 def delete_project(project_id: int):
     response = supabase.table("projects").delete().eq("id", project_id).execute()
     return {"message": "Project deleted"}
-
-

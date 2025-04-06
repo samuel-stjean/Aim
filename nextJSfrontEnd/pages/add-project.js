@@ -25,12 +25,12 @@ export default function AddProject() {
 
     try {
       await axios.post('http://127.0.0.1:8000/projects', {
-        id: Date.now(), // Or remove if backend auto-generates it
+        id: Date.now(), // Or remove if backend auto-generates ita
       project_name: projectName,
       project_description: projectDescription,
       project_manager_id: user.id,
       });
-      router.push('/dashboard'); // Redirect after adding project
+      router.push('/dashboard'); // Redirect after adding projecta
     } catch (error) {
       console.error('Failed to add project:', error);
       alert('Error creating project.');
