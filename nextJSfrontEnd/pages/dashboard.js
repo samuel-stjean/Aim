@@ -8,6 +8,7 @@ export default function Dashboard() {
   const [projects, setProjects] = useState([]);
   const [user, setUser] = useState(null);
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem('user');
@@ -49,6 +50,10 @@ export default function Dashboard() {
     router.push('/teams');
   };
 
+  const filteredProjects = projects.filter(project =>
+    project.project_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="dashboard-page">
       <Header />
@@ -56,33 +61,52 @@ export default function Dashboard() {
         <div className="dashboard-content">
           <h1 className="black-bold-title">Project Dashboard</h1>
 
-          <div className="projects-scroll-container">
-            <div className="projects-grid">
-              {projects.length > 0 ? (
-                projects.map((project) => (
-                  <div
-                    key={project.id}
-                    className="project-card"
-                    onClick={() => handleProjectClick(project.id)}
-                  >
-                    <h2 className="project-title">{project.project_name}</h2>
-                    <p className="project-description">{project.project_description}</p>
-                  </div>
-                ))
-              ) : (
-                <p className = "black-title">You don’t have any projects yet. Click + to add one!</p>
-              )}
-            </div>
-          </div>
-
-          <div className="dashboard-actions">
+          <div className="dashboard-toolbar">
             <button className="manage-teams-button" onClick={handleManageTeams}>
               Manage Teams
-            </button>
-            <button className="add-project-button" onClick={handleAddProject}>
-              +
-            </button>
+          </button>
+
+          <input
+            type="text"
+            placeholder="Search projects..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="search-bar"
+          />
+
+          <button className="add-project-button" onClick={handleAddProject}>
+            + Add Project
+          </button>
+        </div>
+          <div className="projects-scroll-container">
+          {projects.length === 0 ? (
+            <div className="empty-state-message">
+              <p className="black-title">
+                You don’t have any projects yet. Click Add Project to start one!
+              </p>
+            </div>
+          ) : filteredProjects.length === 0 ? (
+            <div className="empty-state-message">
+              <p className="black-title">No projects match your search.</p>
+            </div>
+          ) : (
+            <div className="projects-grid">
+              {filteredProjects.map((project) => (
+                <div
+                  key={project.id}
+                  className="project-card"
+                  onClick={() => handleProjectClick(project.id)}
+                >
+                  <h2 className="project-title">{project.project_name}</h2>
+                  <p className="project-description">{project.project_description}</p>
+                </div>
+              ))}
+            </div>
+          )}
           </div>
+
+
+          
         </div>
       </div>
     </div>
