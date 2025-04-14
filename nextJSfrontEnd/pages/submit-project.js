@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import ReactMarkdown from 'react-markdown';
+import Header from '../components/header';
 
 export default function SubmitProjectPrompt() {
   const router = useRouter();
@@ -66,6 +67,7 @@ export default function SubmitProjectPrompt() {
 
   return (
     <div style={styles.container}>
+      <Header/>
   <div ref={topRef}></div>
   <h1 style={styles.title}>Outline for {projectName || 'Project'}</h1>
 

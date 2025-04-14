@@ -11,32 +11,30 @@ export default function Dashboard() {
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem('user');
-  
     if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-  
-      async function fetchProjects() {
-        try {
-          const res = await axios.get('http://127.0.0.1:8000/projects');
-          
-          // ✅ Check user before filtering
-          if (parsedUser) {
-            const userProjects = res.data.filter(
-              (project) => project.project_manager_id === parsedUser.id
-            );
-            setProjects(userProjects);
-          }
-        } catch (error) {
-          console.error('Error fetching projects:', error);
-        }
-      }
-  
-      fetchProjects();
+      setUser(JSON.parse(storedUser));
     } else {
       router.replace('/');
     }
   }, []);
+  
+  useEffect(() => {
+    if (!user) return;
+  
+    async function fetchProjects() {
+      try {
+        const res = await axios.get('http://127.0.0.1:8000/projects');
+        const userProjects = res.data.filter(
+          (project) => project.project_manager_id === user.id
+        );
+        setProjects(userProjects);
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+      }
+    }
+  
+    fetchProjects();
+  }, [user]);
   
 
   const handleProjectClick = (projectId) => {
@@ -57,13 +55,6 @@ export default function Dashboard() {
       <div className="dashboard-content-wrapper">
         <div className="dashboard-content">
           <h1 className="black-bold-title">Project Dashboard</h1>
-
-          {user && (
-            <div className="user-info">
-              <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Welcome,</strong> {user.firstName} {user.lastName}</p>
-              <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Email:</strong> {user.email}</p>
-            </div>
-          )}
 
           <div className="projects-scroll-container">
             <div className="projects-grid">
