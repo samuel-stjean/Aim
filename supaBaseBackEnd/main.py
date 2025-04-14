@@ -14,6 +14,7 @@ from jira import JIRA
 from dotenv import load_dotenv
 import json
 import re
+import logging
 
 load_dotenv()
 
@@ -41,7 +42,8 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins or specify domains
+    allow_origins=["http://localhost:3000"],
+    # allow_origins=["*"],  # Allow all origins or specify domains
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
@@ -95,6 +97,7 @@ class Project(BaseModel):
 class Sprint(BaseModel):
     id: int
     name: str
+    description: str 
     start_date: str
     end_date: str
     status: str
@@ -454,3 +457,77 @@ def delete_member(member_id: int):
     return {"message": "Member deleted"}
 
 
+class OutlinePayload(BaseModel):
+    project_id: int
+    outline: str
+
+import re
+from fastapi import HTTPException
+
+@app.post("/accept_outline")
+def accept_outline(payload: OutlinePayload):
+    project_id = payload.project_id
+    outline_text = payload.outline
+
+    print("\n [DEBUG] Received outline for project ID:", project_id)
+    print("--------------------------------------------------")
+    print(outline_text[:1000])  # Print first 1000 characters of outline
+    print("--------------------------------------------------")
+
+    # Split before each "**Sprint X:" to separate sections
+    sprint_sections = re.split(r"\n(?=\*\*Sprint\s\d+:)", outline_text)
+
+    print(f"\n [DEBUG] Found {len(sprint_sections)} sections potentially containing sprints.")
+
+    inserted_count = 0
+
+    for i, section in enumerate(sprint_sections):
+        print(f"\n🚧 [DEBUG] Processing section {i + 1}:\n{section[:300]}...\n")
+
+        # Find sprint name from bolded line like "**Sprint 1: Project Title**"
+        name_match = re.search(r"\*\*(Sprint\s\d+:.*?)\*\*", section)
+        if not name_match:
+            print(f"⏭ [DEBUG] Skipping section {i + 1} — no valid sprint name found.")
+            continue
+        sprint_name = name_match.group(1).strip()
+
+        # Remove the name from the section so it doesn't get included in description
+        section_cleaned = re.sub(r"\*\*Sprint\s\d+:.*?\*\*", "", section).strip()
+
+        # Extract only the relevant lines (usually Purpose and Expected Outcomes)
+        purpose_match = re.search(r"\*\*Purpose:\*\*(.*?)(?=\*\*|$)", section_cleaned, re.DOTALL)
+        outcomes_match = re.search(r"\*\*Expected Outcome[s]?:\*\*(.*?)(?=\*\*|$)", section_cleaned, re.DOTALL)
+
+        description_parts = []
+        if purpose_match:
+            description_parts.append("Purpose:" + purpose_match.group(1).strip())
+        if outcomes_match:
+            description_parts.append("Expected Outcomes:" + outcomes_match.group(1).strip())
+
+        sprint_description = "\n\n".join(description_parts).strip()
+
+        if not sprint_description:
+            print(f" [DEBUG] Section {i + 1} has no valid description (Purpose/Outcomes).")
+            continue
+
+        print(f" [DEBUG] Inserting sprint:\nName: {sprint_name}\nDescription:\n{sprint_description[:300]}...\n")
+
+        try:
+            supabase.table("sprints").insert({
+                "name": sprint_name,
+                "description": sprint_description,
+                "start_date": "2025-01-01",  # placeholder
+                "end_date": "2025-01-14",    # placeholder
+                "status": "planned",
+                "project_id": project_id
+            }).execute()
+            inserted_count += 1
+        except Exception as e:
+            print(f" [ERROR] Failed to insert sprint '{sprint_name}': {e}")
+
+    if inserted_count == 0:
+        print(" [DEBUG] No sprints were inserted. Check outline formatting or markdown structure.")
+    else:
+        print(f" [DEBUG] Successfully inserted {inserted_count} sprints.")
+
+    return {"message": f"{inserted_count} sprint(s) parsed and saved."}

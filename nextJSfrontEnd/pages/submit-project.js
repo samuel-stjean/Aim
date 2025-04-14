@@ -64,6 +64,20 @@ export default function SubmitProjectPrompt() {
     setRevisePrompt(true);
   };
 
+  const handleAcceptOutline = async () => {
+    try {
+      await axios.post('http://127.0.0.1:8000/accept_outline', {
+        project_id: projectId,
+        outline: projectOutline
+      });
+      router.push(`/project/${projectId}`);
+    } catch (err) {
+      console.error("Failed to save outline:", err);
+      alert("Error saving project outline.");
+    }
+  };
+  
+
   return (
     <div style={styles.container}>
   <div ref={topRef}></div>
@@ -127,7 +141,10 @@ export default function SubmitProjectPrompt() {
   <div style={styles.buttonRow}>
     {projectOutline && (
       <>
-        <button style={styles.acceptButton} onClick={() => router.push(`/project/${projectId}`)}>
+        {/* <button style={styles.acceptButton} onClick={() => router.push(`/project/${projectId}`)}>
+          Accept Outline
+        </button> */}
+        <button style={styles.acceptButton} onClick={handleAcceptOutline}>
           Accept Outline
         </button>
         <button style={styles.unsatisfiedButton} onClick={handleUnsatisfied}>
