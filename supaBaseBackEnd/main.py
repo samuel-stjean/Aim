@@ -456,6 +456,12 @@ def delete_member(member_id: int):
     response = supabase.table("members").delete().eq("id", member_id).execute()
     return {"message": "Member deleted"}
 
+#DELETE a project 
+@app.delete("/projects/{project_id}")
+def delete_project(project_id: int):
+    response = supabase.table("projects").delete().eq("id", project_id).execute()
+    return {"message": "Project deleted"}
+
 
 class OutlinePayload(BaseModel):
     project_id: int

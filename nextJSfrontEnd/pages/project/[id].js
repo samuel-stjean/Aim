@@ -217,31 +217,7 @@ export default function ProjectDetails() {
           font-size: 1.5rem;
           color: black;
           max-width: 90%;
-          margin: 0 auto 30px;
-        }
-        .sprints-container {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          margin-bottom: 30px;
-        }
-        .sprint-box {
-          background-color: #f4f6fb;
-          border: 1px solid #ccc;
-          padding: 20px;
-          border-radius: 8px;
-          text-align: left;
-        }
-        .sprint-name {
-          font-size: 1.3rem;
-          font-weight: bold;
-          color: #305cb5;
-          margin-bottom: 10px;
-        }
-        .sprint-description {
-          white-space: pre-wrap;
-          font-size: 1rem;
-          color: #333;
+          margin: 0 auto;
         }
         .outline-button {
           margin-top: 30px;
