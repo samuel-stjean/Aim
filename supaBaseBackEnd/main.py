@@ -219,15 +219,16 @@ def get_team_developers(team_id: int):
     response = supabase.table("developer").select("*").eq("team_id", team_id).execute()
     return response.data
 
+@app.get("/generate_sprint_outline")
 
-def get_recommendation(issue_id: int):
+def generate_sprint_outline(id: int):
     try:
         # Fetch the specific issue and all developers from Supabase
-        issue_response = supabase.table("issues").select("*").eq("id", issue_id).execute()
+        issue_response = supabase.table("sprints").select("*").eq("id", id).execute()
         developers_response = supabase.table("developer").select("*").execute()
 
         if not issue_response.data:
-            raise HTTPException(status_code=404, detail=f"Issue with id {issue_id} not found.")
+            raise HTTPException(status_code=404, detail=f"Issue with id {id} not found.")
         if not developers_response.data:
             raise HTTPException(status_code=404, detail="No developers found.")
 
@@ -235,38 +236,54 @@ def get_recommendation(issue_id: int):
         developers = developers_response.data
 
         issue_data1 = {
-            'project': {'key': 'SCRUM'},
-            'summary': 'Issue Name',
-            'description': 'Details of the issue.',
-            'issuetype': {'name': 'Bug'},
-            'assignee': {'name': 'john.doe'} # Replace 'Bug' with the desired issue type
+
+            'summary': 'Summary of Ticket Description Like The Ticket Title',
+            'description': 'Description of the ticket',
+            'issuetype': 'Bug , Task, Story',  # Replace 'Bug, Task , Story' with the desired issue type
+            'assignee': 'John Doe' # Replace 'Bug' with the desired issue type
         }
 
         # Convert dictionary to a string
         issue_data_str = str(issue_data1)
 
         # Prepare the input for the Gemini API
+        
         prompt = (
-            "For the given project I want you to generate a series of subtasks in the form of jira tickets that are all necessary to complete "
-            "the bigger task (meaning the project). Now for each issue I want you to recommend "
+            "For the given sprint I want you to generate a series of subtasks in the form of jira tickets that are all necessary to complete "
+            "the sprint goal and scope. Now for each issue I want you to recommend "
             "a developer to assign the ticket to based on their "
             "available hours and relevant skills. For the Jira ticket recommendations please use this template format. "
             f"{issue_data_str}"
             f"Issue: {issue}. Developers: {developers}."
-            "Now for the response itself please only give me the ticket suggestions themselves and the assignee within the format as instructed"
+            "Now for the response itself please give me the ticket suggestions themselves and the assignee within the format as instructed and nothing else. "
+            "This is very important please do not add any other text or information to the response. "
         )
 
-
+        
+        '''
+        prompt = (
+            "You are a highly experienced technical program manager and UX designer. For the given sprint, generate a series of subtasks in the form of Jira tickets "
+            "necessary to achieve the sprint's goal and scope. For each ticket, recommend a developer to assign based on their "
+            "available hours and relevant skills. Ensure the response is structured in a way that is highly user-friendly, visually appealing, and easy to read. "
+            "Use clear headings, bullet points, and concise descriptions to enhance readability and usability.\n\n"
+            f"Issue Details: {issue}\n"
+            f"Available Developers: {developers}"
+        )
+        '''
         # Use the generative AI model to generate content
         model = genai.GenerativeModel("gemini-1.5-flash")
+
         response = model.generate_content(prompt)
 
         tickets = extract_tickets(response.text)
 
-        print(tickets)
+        print("Extracted tickets:", tickets)
+        # Print Tickets to console for debugging
+        for ticket in tickets:
+            print(ticket)
 
         return tickets
-
+    
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate a recommendation.")
@@ -297,7 +314,6 @@ def generate_project_outline(project_goal: str, project_scope: str, project_time
     except Exception as e:
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate project outline.")
-
 
 # @app.post("/createUser")
 # def add_user(user: User):
@@ -386,15 +402,14 @@ def login_user(email: str, password: str):
 
 
 def extract_tickets(text):
-
+    # Define a regex pattern to match ticket-like structures
     pattern = re.compile(
         r"\{"
-        r"\s*'project'\s*:\s*\{'key'\s*:\s*'.*?'\},"
         r"\s*'summary'\s*:\s*'.*?',"
         r"\s*'description'\s*:\s*'.*?',"
-        r"\s*'issuetype'\s*:\s*\{'name'\s*:\s*'.*?'\},"
-        r"\s*'assignee'\s*:\s*\{'name'\s*:\s*'.*?'\}"
-        r"\s*\}", 
+        r"\s*'issuetype'\s*:\s*'.*?',"
+        r"\s*'assignee'\s*:\s*'.*?'"
+        r"\s*\}",
         re.DOTALL
     )
     
@@ -411,17 +426,13 @@ def extract_tickets(text):
             print(f"Error parsing ticket: {e}")
     
     processed_tickets = [
-
         {
-            'project': item['project']['key'],  # Extracting 'key' from 'project'
             'summary': item['summary'],
             'description': item['description'],
-            'issuetype': item['issuetype']['name'],  # Extracting 'name' from 'issuetype'
-            'assignee': item['assignee']['name']  # Extracting 'name' from 'assignee'
+            'issuetype': item['issuetype'],
+            'assignee': item['assignee']
         }
-
         for item in tickets
-
     ]
     
     return processed_tickets  # Return list of valid JSON tickets
