@@ -26,6 +26,8 @@ export default function SubmitProjectPrompt() {
           const project = res.data[0];
           setProjectName(project.project_name || '');
           setProjectGoal(project.project_description || '');
+          setProjectScope(project.project_scope || '');
+          setProjectTimeline(project.project_timeline || '');
         }
       })
       .catch(err => {
@@ -39,7 +41,26 @@ export default function SubmitProjectPrompt() {
     setError(null);
     setRevisePrompt(false);
 
+    
+
+    // try {
+    //   const response = await axios.get('http://127.0.0.1:8000/project_outline', {
+    //     params: {
+    //       project_goal: projectGoal,
+    //       project_scope: projectScope,
+    //       project_timeline: projectTimeline,
+    //     },
+    //   });
+
     try {
+      // Update the goal/scope/timeline in DB
+      await axios.patch(`http://127.0.0.1:8000/projects/${projectId}`, {
+        project_description: projectGoal,
+        project_scope: projectScope,
+        project_timeline: projectTimeline,
+      });
+  
+      // Then generate the outline
       const response = await axios.get('http://127.0.0.1:8000/project_outline', {
         params: {
           project_goal: projectGoal,
@@ -82,6 +103,7 @@ export default function SubmitProjectPrompt() {
     <div style={styles.container}>
   <div ref={topRef}></div>
   <h1 style={styles.title}>Outline for {projectName || 'Project'}</h1>
+  <h2>Give a detailed response for each input</h2>
 
   {revisePrompt && (
     <p style={styles.reviseText}>
@@ -199,9 +221,9 @@ const styles = {
     padding: '30px',
     borderRadius: '10px',
     boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-    position: 'sticky',      // 👈 makes it sticky
-    top: '100px',            // 👈 how far from the top it sticks
-    alignSelf: 'flex-start', // 👈 so it aligns to the top of its flex row
+    position: 'sticky',      //  makes it sticky
+    top: '100px',            //  how far from the top it sticks
+    alignSelf: 'flex-start', //  so it aligns to the top of its flex row
     maxHeight: '80vh',
     overflowY: 'auto',
   },

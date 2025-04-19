@@ -6,31 +6,30 @@ import Header from '../components/header';
 
 export default function AddProject() {
   const [projectName, setProjectName] = useState('');
-  const [projectDescription, setProjectDescription] = useState('');
-  const [team, setTeam] = useState('');
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [sprintDuration, setSprintDuration] = useState('');
+  const [projectGoal, setProjectGoal] = useState('');
+  const [projectScope, setProjectScope] = useState('');
+  const [projectTimeline, setProjectTimeline] = useState('');
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-  const user = JSON.parse(sessionStorage.getItem('user'));
-
-  if (!user) {
-    alert('You must be logged in to create a project.');
-    return;
-  }
+    const user = JSON.parse(sessionStorage.getItem('user'));
+    if (!user) {
+      alert('You must be logged in to create a project.');
+      return;
+    }
 
     try {
       await axios.post('http://127.0.0.1:8000/projects', {
-        id: Date.now(), // Or remove if backend auto-generates it
-      project_name: projectName,
-      project_description: projectDescription,
-      project_manager_id: user.id,
+        id: Date.now(),
+        project_name: projectName,
+        project_description: projectGoal,
+        project_scope: projectScope,             
+        project_timeline: projectTimeline,       
+        project_manager_id: user.id
       });
-      router.push('/dashboard'); // Redirect after adding project
+      
+      router.push('/dashboard');
     } catch (error) {
       console.error('Failed to add project:', error);
       alert('Error creating project.');
@@ -41,62 +40,49 @@ export default function AddProject() {
     <div className="add-project-container">
       <Header />
       <div className="form-box">
-        <h1 className="add-project-title">Add New Project</h1>
+        <h1 className="add-project-title">New Project Setup</h1>
         <form onSubmit={handleSubmit} className="add-project-form">
           <div className="input-group">
-            <label>Project Name</label>
+            <label>Project Name:</label>
             <input
               type="text"
-              placeholder="Enter project name"
               value={projectName}
               onChange={(e) => setProjectName(e.target.value)}
+              placeholder="Enter a title"
               required
             />
           </div>
           <div className="input-group">
-            <label>Project Description</label>
+            <label>Project Goal:</label>
             <textarea
-              placeholder="Enter project description"
-              value={projectDescription}
-              onChange={(e) => setProjectDescription(e.target.value)}
+              value={projectGoal}
+              onChange={(e) => setProjectGoal(e.target.value)}
+              placeholder="Describe the high-level objective of your project"
+              rows={2}
               required
             />
           </div>
           <div className="input-group">
-            <label>Team Name</label>
-            <input
-              type="text"
-              placeholder="Enter team name"
-              value={team}
-              onChange={(e) => setTeam(e.target.value)}
+            <label>Project Scope:</label>
+            <textarea
+              value={projectScope}
+              onChange={(e) => setProjectScope(e.target.value)}
+              placeholder="Define the key features and boundaries of your project along with the tech stack you plan to use"
+              rows={2}
             />
           </div>
           <div className="input-group">
-            <label>Start Date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+            <label>Project Timeline:</label>
+            <textarea
+              value={projectTimeline}
+              onChange={(e) => setProjectTimeline(e.target.value)}
+              placeholder="What's the timeline for completion?"
+              rows={2}
             />
           </div>
-          <div className="input-group">
-            <label>End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </div>
-          <div className="input-group">
-            <label>Sprint Duration (in days)</label>
-            <input
-              type="number"
-              placeholder="Enter sprint duration"
-              value={sprintDuration}
-              onChange={(e) => setSprintDuration(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="submit-button">Create Project</button>
+          <button type="submit" className="submit-button">
+            Generate Outline
+          </button>
         </form>
       </div>
       <style jsx>{`
@@ -115,7 +101,7 @@ export default function AddProject() {
           border-radius: 10px;
           box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
           text-align: center;
-          max-width: 400px;
+          max-width: 500px;
           width: 100%;
         }
         .add-project-title {
@@ -129,42 +115,41 @@ export default function AddProject() {
           gap: 15px;
         }
         .input-group {
-          display: flex;
-          flex-direction: column;
           text-align: left;
-        }
-        .input-group label {
-          font-size: 1rem;
-          font-weight: bold;
           color: black;
-          margin-bottom: 5px;
+        }
+        label {
+          font-weight: bold;
+          margin-bottom: 6px;
+          display: block;
+          color: black;
         }
         input, textarea {
+          width: 100%;
           padding: 12px;
           font-size: 1rem;
           border: 2px solid #ccc;
           border-radius: 5px;
-          outline: none;
-          transition: border 0.3s ease-in-out;
-          color: black;
+          resize: vertical;
         }
         input:focus, textarea:focus {
           border-color: #305cb5;
+          outline: none;
         }
         .submit-button {
           width: 100%;
-          padding: 15px;
+          padding: 14px;
           font-size: 1.2rem;
           font-weight: bold;
           border: none;
-          border-radius: 5px;
-          background: #4079e1;
+          border-radius: 6px;
+          background-color: #4079e1;
           color: white;
           cursor: pointer;
-          transition: 0.3s ease-in-out;
+          transition: background-color 0.3s ease-in-out;
         }
         .submit-button:hover {
-          background: #264a8a;
+          background-color: #264a8a;
         }
       `}</style>
     </div>

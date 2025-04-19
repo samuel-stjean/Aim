@@ -91,6 +91,8 @@ class Project(BaseModel):
     sprint_duration_weeks: int | None = None  # Rename field
     start_date: str | None = None
     end_date: str | None = None
+    project_scope: str | None = None        
+    project_timeline: str | None = None  
     project_manager_id: int
 
 
@@ -173,6 +175,20 @@ def add_project(project: Project):
         return {"message": "Project added successfully", "data": response.data}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.patch("/projects/{project_id}")
+async def update_project(project_id: int, request: Request):
+    try:
+        update_data = await request.json()
+        print(f"[DEBUG] Updating project {project_id} with: {update_data}")
+
+        response = supabase.table("projects").update(update_data).eq("id", project_id).execute()
+        return {"message": "Project updated successfully", "data": response.data}
+    except Exception as e:
+        print(f"[ERROR] Failed to update project: {e}")
+        raise HTTPException(status_code=500, detail="Failed to update project")
+
 
 
 @app.get("/sprints")
@@ -603,6 +619,7 @@ def accept_tickets(payload: TicketPayload):
 
     try:
         # Parse the outline assuming it's a JSON string
+        outline = outline.replace("'", '"')
         tickets = json.loads(outline)
 
         if not isinstance(tickets, list):
