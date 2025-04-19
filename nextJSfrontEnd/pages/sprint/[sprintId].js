@@ -9,25 +9,37 @@ export default function SprintDetails() {
   const [sprint, setSprint] = useState(null);
   const [outline, setOutline] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [tickets, setTickets] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     if (!router.isReady) return;
 
-    async function fetchSprint() {
+    async function fetchData() {
       try {
         const res = await axios.get(`http://127.0.0.1:8000/sprints`);
         const match = res.data.find(s => s.id === Number(sprintId));
         if (match) {
           setSprint(match);
         }
-      } catch (err) {
+
+        const ticketsRes = await axios.get(`http://127.0.0.1:8000/tickets`, {
+          params: { sprint_id: sprintId },
+        });
+
+        if (ticketsRes.data.length > 0) {
+          setTickets(ticketsRes.data);
+        }
+      }
+    
+      catch (err) {
         console.error('Error fetching sprint:', err);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchSprint();
+    fetchData();
   }, [router.isReady, sprintId]);
 
   if (loading) return <p>Loading...</p>;
@@ -47,6 +59,25 @@ export default function SprintDetails() {
     }
   };
 
+  const handleAccept = async () => {
+    alert('Outline Accepted');
+
+    try {      
+      
+      alert(outline);
+      
+      // Send the outline to the backend for acceptance
+      const response = axios.post(`http://127.0.0.1:8000/accept_tickets`, {sprint_id: sprintId, outline: outline },);
+      alert('Sprint outline accepted successfully!', response.data);
+      router.push('/project/' + sprint.project_id); // Redirect to the project page after acceptance
+    } 
+    
+    catch (error) {
+      console.error('Error accepting sprint outline:', error);
+      alert('Failed to accept sprint outline. Please try again.');
+    }
+  }
+
   return (
     <div className="sprint-page-container">
       <Header />
@@ -56,6 +87,19 @@ export default function SprintDetails() {
         <button className="prompt-button" onClick={handleClick}>
           Prompt for Sprint
         </button>
+        {Array.isArray(tickets) && tickets.length > 0 && (
+          <div className="existing-tickets">
+            <h2>Existing Tickets</h2>
+            {tickets.map((ticket, index) => (
+              <div key={index} className="ticket-box">
+                <h3>{ticket.summary}</h3>
+                <p>Description: {ticket.description}</p>
+                <p>Type: {ticket.issuetype}</p>
+                <p>Assigned To: {ticket.assignee}</p>
+              </div>
+            ))}
+          </div>
+        )}
         {outline && (
           <div className="sprint-outline">
             {JSON.parse(outline).map((ticket, index) => (
@@ -66,6 +110,14 @@ export default function SprintDetails() {
                 <p> Assigned To: {ticket.assignee}</p>
               </div>
             ))}
+            <div className="outline-actions">
+              <button className="accept-button" onClick={handleAccept}>
+                Accept Outline
+              </button>
+              <button className="decline-button" onClick={() => alert('Outline Declined')}>
+                Decline Outline
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -119,8 +171,14 @@ export default function SprintDetails() {
           opacity: 0.7;
         }
 
-        .sprint-outline {
+        .existing-tickets {
           margin-top: 20px;
+        }
+
+        .existing-tickets h2 {
+          font-size: 1.5rem;
+          color: #305cb5;
+          margin-bottom: 10px;
         }
 
         .ticket-box {
@@ -142,6 +200,39 @@ export default function SprintDetails() {
           margin: 0;
           font-size: 1rem;
           color: #333;
+        }
+
+        .sprint-outline {
+          margin-top: 20px;
+        }
+
+        .outline-actions {
+          margin-top: 20px;
+          display: flex;
+          gap: 10px;
+        }
+
+        .accept-button,
+        .decline-button {
+          background-color: rgb(2, 154, 40);
+          color: white;
+          font-size: 1rem;
+          padding: 10px 20px;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+        }
+
+        .decline-button {
+          background-color: #d32f2f;
+        }
+
+        .accept-button:hover {
+          background-color: rgb(30, 138, 61);
+        }
+
+        .decline-button:hover {
+          background-color: #b71c1c;
         }
       `}</style>
     </div>

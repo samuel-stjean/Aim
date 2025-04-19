@@ -225,7 +225,25 @@ def generate_sprint_outline(id: int):
     try:
         # Fetch the specific issue and all developers from Supabase
         issue_response = supabase.table("sprints").select("*").eq("id", id).execute()
-        developers_response = supabase.table("developer").select("*").execute()
+
+        project_response = supabase.table("sprints").select("project_id").eq("id", id).execute()
+        if not project_response.data:
+            raise HTTPException(status_code=404, detail=f"Sprint with id {id} not found.")
+        project_id = project_response.data[0]["project_id"]
+
+        manager_response = supabase.table("projects").select("project_manager_id").eq("id", project_id).execute()
+        if not manager_response.data:
+            raise HTTPException(status_code=404, detail=f"Project with id {project_id} not found.")
+        project_manager_id = manager_response.data[0]["project_manager_id"]
+
+        team_response = supabase.table("teams").select("id").eq("user_id", project_manager_id).execute()
+        if not team_response.data:
+            raise HTTPException(status_code=404, detail=f"Team for project manager with id {project_manager_id} not found.")
+        team_id = team_response.data[0]["id"]
+
+        developers_response = supabase.table("members").select("*").eq("team_id", team_id).execute()
+
+        print(f"[DEBUG] Developer Response: {developers_response.data}")
 
         if not issue_response.data:
             raise HTTPException(status_code=404, detail=f"Issue with id {id} not found.")
@@ -240,7 +258,7 @@ def generate_sprint_outline(id: int):
             'summary': 'Summary of Ticket Description Like The Ticket Title',
             'description': 'Description of the ticket',
             'issuetype': 'Bug , Task, Story',  # Replace 'Bug, Task , Story' with the desired issue type
-            'assignee': 'John Doe' # Replace 'Bug' with the desired issue type
+            'assignee': '123' # 123 is an example id of the developer assigned to the ticket
         }
 
         # Convert dictionary to a string
@@ -274,6 +292,12 @@ def generate_sprint_outline(id: int):
         model = genai.GenerativeModel("gemini-1.5-flash")
 
         response = model.generate_content(prompt)
+        
+        print (f"[DEBUG] Print Response Text -> {response.text}")
+        
+        # Check if the response is empty or not
+        if not response.text:
+            raise HTTPException(status_code=500, detail="No response from Gemini API.")
 
         tickets = extract_tickets(response.text)
 
@@ -357,6 +381,14 @@ def add_issue(ticket: Ticket):
     response1 = supabase.table("tickets").insert(ticket.dict()).execute()
     return response1.data
 
+@app.get("/tickets")
+def get_tickets(sprint_id: str):
+    # Check if sprint_id is a digit before converting
+    sprint_id = int(sprint_id) if sprint_id.isdigit() else None
+
+    response1 = supabase.table("tickets").select("*").eq('sprint_id', sprint_id).execute()
+    
+    return response1.data
 
 @app.post("/sprints")
 def add_sprint(sprint: Sprint):
@@ -408,7 +440,7 @@ def extract_tickets(text):
         r"\s*'summary'\s*:\s*'.*?',"
         r"\s*'description'\s*:\s*'.*?',"
         r"\s*'issuetype'\s*:\s*'.*?',"
-        r"\s*'assignee'\s*:\s*'.*?'"
+        r"\s*'assignee'\s*:\s*\d+"  # Match numeric assignee IDs
         r"\s*\}",
         re.DOTALL
     )
@@ -480,6 +512,7 @@ class OutlinePayload(BaseModel):
 
 import re
 from fastapi import HTTPException
+from pydantic import BaseModel
 
 @app.post("/accept_outline")
 def accept_outline(payload: OutlinePayload):
@@ -548,3 +581,83 @@ def accept_outline(payload: OutlinePayload):
         print(f" [DEBUG] Successfully inserted {inserted_count} sprints.")
 
     return {"message": f"{inserted_count} sprint(s) parsed and saved."}
+
+class TicketPayload(BaseModel):
+    sprint_id: str
+    outline: str
+
+@app.post("/accept_tickets")
+def accept_tickets(payload: TicketPayload):
+
+   # print(f"Received payload: {payload.dict()}")
+
+    sprint_id = payload.sprint_id
+    outline = payload.outline
+
+    print("\n [DEBUG] Received outline for sprint ID:", sprint_id)
+    print("--------------------------------------------------")
+    print(outline[:1000])  # Print first 1000 characters of outline
+    print("--------------------------------------------------")
+
+    sprint_id = int(sprint_id) if sprint_id.isdigit() else None
+
+    try:
+        # Parse the outline assuming it's a JSON string
+        tickets = json.loads(outline)
+
+        if not isinstance(tickets, list):
+            raise HTTPException(status_code=400, detail="Outline must be a JSON array of tickets.")
+
+        inserted_count = 0
+
+        for ticket in tickets:
+
+            print(f" [DEBUG] Processing ticket: {ticket}")
+            
+            # Validate required fields in each ticket
+            required_fields = {"summary", "description", "issuetype", "assignee"}
+            if not required_fields.issubset(ticket.keys()):
+                print(f" [DEBUG] Skipping ticket due to missing fields: {ticket}")
+                continue
+
+            assignee_num = int(str(ticket["assignee"])) if str(ticket["assignee"]).isdigit() else None
+
+            print(f" [DEBUG] Assignee number: {assignee_num}")
+            # Validate the assignee ID
+
+            if assignee_num is None:
+                print(f" [DEBUG] Skipping ticket due to invalid assignee: {ticket['assignee']}")
+                continue
+        
+            print(f" [DEBUG] Inserting ticket:\nSummary: {ticket['summary']}\nDescription:\n{ticket['description'][:300]}...\n")
+            print(f" [DEBUG] Issuetype: {ticket['issuetype']}")
+            print(f" [DEBUG] Sprint ID: {sprint_id} and its of type {type(sprint_id)}")
+            print(f" [DEBUG] Assignee: {assignee_num}")
+
+            # Insert ticket into the database
+            import random  # Ensure random is imported at the top of the file
+
+            supabase.table("tickets").insert({
+                "summary": ticket["summary"],
+                "description": ticket["description"],
+                "issuetype": ticket["issuetype"],
+                "sprint_id": sprint_id,
+                "assignee": assignee_num,
+            }).execute()
+
+            inserted_count += 1
+
+        if inserted_count == 0:
+            print(" [DEBUG] No tickets were inserted. Check outline formatting or JSON structure.")
+        else:
+            print(f" [DEBUG] Successfully inserted {inserted_count} tickets.")
+
+        return {"message": f"{inserted_count} ticket(s) parsed and saved."}
+
+    except json.JSONDecodeError as e:
+        print(f" [ERROR] Failed to parse outline as JSON: {e}")
+        raise HTTPException(status_code=400, detail="Invalid JSON format in outline.")
+    except Exception as e:
+        print(f" [ERROR] Failed to process tickets: {e}")
+        raise HTTPException(status_code=500, detail="Failed to process tickets.")
+
