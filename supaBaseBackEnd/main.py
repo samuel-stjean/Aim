@@ -138,20 +138,12 @@ def get_users():
     response = supabase.table("developer").select("*").execute()
     return response.data
 
-# @app.get("/team")
-# def get_team(user_id: int):
-#     response = supabase.table("developer").select("*").eq("user_id", user_id).execute()
-#     return response.data
 
 @app.get("/issues")
 def get_issues():
     response1 = supabase.table("issues").select("*").execute()
     return response1.data
 
-# @app.get("/projects")
-# def get_projects():
-#     response = supabase.table("projects").select("*").execute()
-#     return response.data
 
 @app.get("/projects")
 def get_projects(request: Request):
@@ -213,11 +205,6 @@ def get_project_recommendations(project_id: int):
     response = supabase.table("recommendations").select("*").eq("project_id", project_id).execute()
     return response.data
 
-# GET All Teams
-# @app.get("/teams")
-# def get_teams():
-#     response = supabase.table("teams").select("*").execute()
-#     return response.data
 
 @app.get("/teams")
 def get_teams(user_id: int):
@@ -284,16 +271,6 @@ def generate_sprint_outline(id: int):
 
         # Prepare the input for the Gemini API
         
-        # prompt = (
-        #     "For the given sprint I want you to generate a series of subtasks in the form of jira tickets that are all necessary to complete "
-        #     "the sprint goal and scope. Now for each issue I want you to recommend "
-        #     "a developer to assign the ticket to based on their "
-        #     "available hours and relevant skills. For the Jira ticket recommendations please use this template format. "
-        #     f"{issue_data_str}"
-        #     f"Issue: {issue}. Developers: {developers}."
-        #     "Now for the response itself please give me the ticket suggestions themselves and the assignee within the format as instructed and nothing else. "
-        #     "This is very important please do not add any other text or information to the response. "
-        # )
 
         prompt = (
             "For the given sprint I want you to generate a series of subtasks in the form of jira tickets that are all necessary to complete "
@@ -306,29 +283,7 @@ def generate_sprint_outline(id: int):
             "This is very important please do not add any other text or information to the response. "
         )
 
-        
-        '''
-        prompt = (
-            "You are a highly experienced technical program manager and UX designer. For the given sprint, generate a series of subtasks in the form of Jira tickets "
-            "necessary to achieve the sprint's goal and scope. For each ticket, recommend a developer to assign based on their "
-            "available hours and relevant skills. Ensure the response is structured in a way that is highly user-friendly, visually appealing, and easy to read. "
-            "Use clear headings, bullet points, and concise descriptions to enhance readability and usability.\n\n"
-            f"Issue Details: {issue}\n"
-            f"Available Developers: {developers}"
-        )
-        '''
-
-        
-        '''
-        prompt = (
-            "You are a highly experienced technical program manager and UX designer. For the given sprint, generate a series of subtasks in the form of Jira tickets "
-            "necessary to achieve the sprint's goal and scope. For each ticket, recommend a developer to assign based on their "
-            "available hours and relevant skills. Ensure the response is structured in a way that is highly user-friendly, visually appealing, and easy to read. "
-            "Use clear headings, bullet points, and concise descriptions to enhance readability and usability.\n\n"
-            f"Issue Details: {issue}\n"
-            f"Available Developers: {developers}"
-        )
-        '''
+       
         # Use the generative AI model to generate content
         model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -380,11 +335,6 @@ def generate_project_outline(project_goal: str, project_scope: str, project_time
         print(f"Error: {e}")
         raise HTTPException(status_code=500, detail="Failed to generate project outline.")
 
-# @app.post("/createUser")
-# def add_user(user: User):
-#     response = supabase.table("user").insert(user.dict()).execute()
-#     print(response)
-#     return response.data
 
 @app.post("/createUser")
 def add_user(user: User):
@@ -403,14 +353,6 @@ def add_user(user: User):
     supabase.table("teams").insert(team_insert).execute()
 
     return response.data
-
-
-
-
-# @app.post("/developer")
-# def add_user(developer: Developer):
-#     response = supabase.table("developer").insert(developer.dict()).execute()
-#     return response.data
 
 @app.post("/issues")
 def add_issue(issue: Issue):
@@ -441,11 +383,6 @@ def add_recommendation(recommendation: Recommendation):
     response = supabase.table("recommendations").insert(recommendation.dict()).execute()
     return response.data
 
-# POST (Create a New Team)
-# @app.post("/teams")
-# def add_team(team: Team):
-#     response = supabase.table("teams").insert(team.dict()).execute()
-#     return response.data
 
 @app.post("/teams")
 async def add_team(team: Team):  # use TeamCreate if you're using it
@@ -511,24 +448,6 @@ def extract_tickets(text):
     return processed_tickets  # Return list of valid JSON tickets
 
 
-# GET all members for a specific team
-# @app.get("/teams/{team_id}/members")
-# def get_members(team_id: int):
-#     response = supabase.table("members").select("*").eq("team_id", team_id).execute()
-#     return response.data
-# @app.get("/teams/{team_id}/members")
-# def get_members(team_id: int):
-#     try:
-#         print(f"[DEBUG] Fetching members for team_id = {team_id}")
-#         response = supabase.table("members").select("*").eq("team_id", team_id).execute()
-
-#         if not response.data:
-#             raise HTTPException(status_code=404, detail=f"No members found for team {team_id}")
-        
-#         return response.data
-#     except Exception as e:
-#         print(f"[ERROR] Failed to fetch members for team_id {team_id}: {e}")
-#         raise HTTPException(status_code=500, detail="Internal error fetching members")
 
 @app.get("/teams/{team_id}/members")
 def get_members(team_id: int):
@@ -549,33 +468,6 @@ def get_members(team_id: int):
         print(f"[ERROR] Failed to fetch members for team_id {team_id}: {e}")
         raise HTTPException(status_code=500, detail="Internal error fetching members")
 
-
-# POST a new member
-# @app.post("/members")
-# def add_member(member: Member):
-#     print(" Received member:", member)
-#     try:
-#         response = supabase.table("members").insert(member.dict(exclude_none=True)).execute()
-#         return response.data
-#     except Exception as e:
-#         print(" Error inserting member:", e)
-#         raise HTTPException(status_code=500, detail=str(e))
-
-# @app.post("/members")
-# def add_member(member: Member):
-#     print(" Received member:", member)
-#     try:
-#         member_data = member.dict(exclude_none=True)
-
-#         # Set default work hours
-#         if "work_hours" not in member_data or member_data["work_hours"] is None:
-#             member_data["work_hours"] = 40
-
-#         response = supabase.table("members").insert(member_data).execute()
-#         return response.data
-#     except Exception as e:
-#         print(" Error inserting member:", e)
-#         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/members")
 def add_member(member: Member):
