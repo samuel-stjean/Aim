@@ -424,7 +424,7 @@ def add_recommendation(recommendation: Recommendation):
 
 @app.post("/teams")
 async def add_team(team: Team):  # use TeamCreate if you're using it
-    print("✅ BACKEND RECEIVED team model:", team)
+    print(" BACKEND RECEIVED team model:", team)
     response = supabase.table("teams").insert(team.dict(exclude_unset=True)).execute()
     return response.data
 
@@ -487,10 +487,24 @@ def extract_tickets(text):
 
 
 # GET all members for a specific team
+# @app.get("/teams/{team_id}/members")
+# def get_members(team_id: int):
+#     response = supabase.table("members").select("*").eq("team_id", team_id).execute()
+#     return response.data
 @app.get("/teams/{team_id}/members")
 def get_members(team_id: int):
-    response = supabase.table("members").select("*").eq("team_id", team_id).execute()
-    return response.data
+    try:
+        print(f"[DEBUG] Fetching members for team_id = {team_id}")
+        response = supabase.table("members").select("*").eq("team_id", team_id).execute()
+
+        if not response.data:
+            raise HTTPException(status_code=404, detail=f"No members found for team {team_id}")
+        
+        return response.data
+    except Exception as e:
+        print(f"[ERROR] Failed to fetch members for team_id {team_id}: {e}")
+        raise HTTPException(status_code=500, detail="Internal error fetching members")
+
 
 # POST a new member
 @app.post("/members")
@@ -548,7 +562,7 @@ def accept_outline(payload: OutlinePayload):
     inserted_count = 0
 
     for i, section in enumerate(sprint_sections):
-        print(f"\n🚧 [DEBUG] Processing section {i + 1}:\n{section[:300]}...\n")
+        print(f"\n [DEBUG] Processing section {i + 1}:\n{section[:300]}...\n")
 
         # Find sprint name from bolded line like "**Sprint 1: Project Title**"
         name_match = re.search(r"\*\*(Sprint\s\d+:.*?)\*\*", section)
@@ -610,6 +624,8 @@ def accept_tickets(payload: TicketPayload):
     sprint_id = payload.sprint_id
     outline = payload.outline
 
+    
+
     print("\n [DEBUG] Received outline for sprint ID:", sprint_id)
     print("--------------------------------------------------")
     print(outline[:1000])  # Print first 1000 characters of outline
@@ -645,14 +661,19 @@ def accept_tickets(payload: TicketPayload):
             if assignee_num is None:
                 print(f" [DEBUG] Skipping ticket due to invalid assignee: {ticket['assignee']}")
                 continue
-        
-            print(f" [DEBUG] Inserting ticket:\nSummary: {ticket['summary']}\nDescription:\n{ticket['description'][:300]}...\n")
-            print(f" [DEBUG] Issuetype: {ticket['issuetype']}")
-            print(f" [DEBUG] Sprint ID: {sprint_id} and its of type {type(sprint_id)}")
-            print(f" [DEBUG] Assignee: {assignee_num}")
+
+
+            # print(f" [DEBUG] Inserting ticket:\nSummary: {ticket['summary']}\nDescription:\n{ticket['description'][:300]}...\n")
+            # print(f" [DEBUG] Issuetype: {ticket['issuetype']}")
+            # print(f" [DEBUG] Sprint ID: {sprint_id} and its of type {type(sprint_id)}")
+            # print(f" [DEBUG] Assignee: {assignee_num}")
 
             # Insert ticket into the database
             import random  # Ensure random is imported at the top of the file
+            member_lookup = supabase.table("members").select("name").eq("id", assignee_num).execute()
+            assignee_name = member_lookup.data[0]["name"] if member_lookup.data else "Unknown"
+
+            print(f" [DEBUG] Inserting ticket:\nSummary: {ticket['summary']}\nAssignee Name: {assignee_name}")
 
             supabase.table("tickets").insert({
                 "summary": ticket["summary"],
@@ -660,7 +681,9 @@ def accept_tickets(payload: TicketPayload):
                 "issuetype": ticket["issuetype"],
                 "sprint_id": sprint_id,
                 "assignee": assignee_num,
+                "assignee_name": assignee_name
             }).execute()
+
 
             inserted_count += 1
 

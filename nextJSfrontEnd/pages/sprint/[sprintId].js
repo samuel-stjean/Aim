@@ -11,33 +11,67 @@ export default function SprintDetails() {
   const [loading, setLoading] = useState(true);
   const [tickets, setTickets] = useState([]);
   const [error, setError] = useState(null);
+  const [memberMap, setMemberMap] = useState({});
+
 
   useEffect(() => {
     if (!router.isReady) return;
 
     async function fetchData() {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/sprints`);
-        const match = res.data.find(s => s.id === Number(sprintId));
-        if (match) {
-          setSprint(match);
+        // Fetch all sprints and find the one we're viewing
+        const sprintRes = await axios.get(`http://127.0.0.1:8000/sprints`);
+        const sprintMatch = sprintRes.data.find(s => s.id === Number(sprintId));
+        if (!sprintMatch) return setLoading(false);
+        setSprint(sprintMatch);
+    
+        // Fetch the associated project to get the project manager ID
+        const projectRes = await axios.get(`http://127.0.0.1:8000/projects`, {
+          params: { id: `eq.${sprintMatch.project_id}` }
+        });
+        const project = projectRes.data[0];
+        if (!project) return setLoading(false);
+    
+        // Get the team tied to this project manager
+        const teamRes = await axios.get(`http://127.0.0.1:8000/teams`, {
+          params: { user_id: project.project_manager_id }
+        });
+        const team = teamRes.data[0];
+        if (!team) return setLoading(false);
+    
+        // Fetch all members from the team
+        const membersRes = await axios.get(`http://127.0.0.1:8000/teams/${team.id}/members`);
+        const memberMap = {};
+        for (const m of membersRes.data) {
+          memberMap[m.id] = m.name;
         }
 
+        const map = {};
+        for (const m of membersRes.data) {
+          map[m.id] = m.name;
+        }
+        setMemberMap(map);
+
+    
+        // Fetch tickets
         const ticketsRes = await axios.get(`http://127.0.0.1:8000/tickets`, {
           params: { sprint_id: sprintId },
         });
-
-        if (ticketsRes.data.length > 0) {
-          setTickets(ticketsRes.data);
-        }
-      }
     
-      catch (err) {
-        console.error('Error fetching sprint:', err);
+        const enrichedTickets = ticketsRes.data.map(ticket => ({
+          ...ticket,
+          assignee_name: memberMap[ticket.assignee ?? -1] || "Unknown"
+        }));
+    
+        setTickets(enrichedTickets);
+      } catch (err) {
+        console.error('Error fetching data:', err);
       } finally {
         setLoading(false);
       }
     }
+    
+    
 
     fetchData();
   }, [router.isReady, sprintId]);
@@ -50,31 +84,44 @@ export default function SprintDetails() {
       const response = await axios.get(`http://127.0.0.1:8000/generate_sprint_outline`, {
         params: { id: sprintId },
       });
-      const outlineString = JSON.stringify(response.data, null, 2);
-      alert(`Generated Sprint Outline:\n\n${outlineString}`);
+  
+      const outlineTickets = response.data;
+  
+      // Enrich with assignee names
+      const enrichedOutline = outlineTickets.map(ticket => ({
+        ...ticket,
+        assignee_name: ticket.assignee !== undefined && memberMap[ticket.assignee]
+          ? memberMap[ticket.assignee]
+          : "Unknown"
+      }));
+  
+      const outlineString = JSON.stringify(enrichedOutline, null, 2);
+      //alert(`Generated Sprint Outline:\n\n${outlineString}`);
       setOutline(outlineString);
+  
     } catch (error) {
       console.error('Error generating sprint outline:', error);
-      alert('Failed to generate sprint outline. Please try again.');
+      //alert('Failed to generate sprint outline. Please try again.');
     }
   };
+  
 
   const handleAccept = async () => {
-    alert('Outline Accepted');
+    //alert('Outline Accepted');
 
     try {      
       
-      alert(outline);
+      //alert(outline);
       
       // Send the outline to the backend for acceptance
       const response = axios.post(`http://127.0.0.1:8000/accept_tickets`, {sprint_id: sprintId, outline: outline },);
-      alert('Sprint outline accepted successfully!', response.data);
+      //alert('Sprint outline accepted successfully!', response.data);
       router.push('/project/' + sprint.project_id); // Redirect to the project page after acceptance
     } 
     
     catch (error) {
       console.error('Error accepting sprint outline:', error);
-      alert('Failed to accept sprint outline. Please try again.');
+      //alert('Failed to accept sprint outline. Please try again.');
     }
   }
 
@@ -95,7 +142,7 @@ export default function SprintDetails() {
                 <h3>{ticket.summary}</h3>
                 <p>Description: {ticket.description}</p>
                 <p>Type: {ticket.issuetype}</p>
-                <p>Assigned To: {ticket.assignee}</p>
+                <p>Assigned To: {ticket.assignee_name}</p>
               </div>
             ))}
           </div>
@@ -107,15 +154,15 @@ export default function SprintDetails() {
                 <h3>{ticket.summary}</h3>
                 <p> Description: {ticket.description}</p>
                 <p> Ticket Type: {ticket.issuetype}</p>
-                <p> Assigned To: {ticket.assignee}</p>
+                <p> Assigned To: {ticket.assignee_name}</p>
               </div>
             ))}
             <div className="outline-actions">
               <button className="accept-button" onClick={handleAccept}>
-                Accept Outline
+                Accept Sprints
               </button>
-              <button className="decline-button" onClick={() => alert('Outline Declined')}>
-                Decline Outline
+              <button className="decline-button" onClick={handleClick}>
+                Reprompt
               </button>
             </div>
           </div>

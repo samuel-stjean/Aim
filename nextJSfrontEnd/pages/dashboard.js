@@ -62,7 +62,7 @@ export default function Dashboard() {
           {user && (
             <div className="user-info">
               <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Welcome,</strong> {user.firstName} {user.lastName}</p>
-              <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Email:</strong> {user.email}</p>
+              {/* <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Email:</strong> {user.email}</p> */}
             </div>
           )}
 
