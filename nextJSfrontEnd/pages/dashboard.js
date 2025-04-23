@@ -20,7 +20,7 @@ export default function Dashboard() {
         try {
           const res = await axios.get('http://127.0.0.1:8000/projects');
           
-          // ✅ Check user before filtering
+          // Check user before filtering
           if (parsedUser) {
             const userProjects = res.data.filter(
               (project) => project.project_manager_id === parsedUser.id
@@ -62,7 +62,7 @@ export default function Dashboard() {
           {user && (
             <div className="user-info">
               <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Welcome,</strong> {user.firstName} {user.lastName}</p>
-              {/* <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Email:</strong> {user.email}</p> */}
+              { <p style={{fontSize: '1.1 rem', color: 'black', textAlign: 'center'}}><strong>Email:</strong> {user.email}</p> }
             </div>
           )}
 
